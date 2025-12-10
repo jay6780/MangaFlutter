@@ -30,22 +30,12 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-
-           ndk {
-                // Filter for architectures supported by Flutter
-                abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
-            }
+        
     }
-
-   buildTypes {
-            getByName("release") {
-
-                proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-            }
-            getByName("debug") {
-                applicationIdSuffix = ".debug" 
-                isDebuggable = true // Enable debugging
-            }
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
 }
 

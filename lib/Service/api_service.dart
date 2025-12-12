@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:manga/Service/interceptor.dart';
+
 class ApiService {
   final _baseUrl = "https://gomanga-api.vercel.app/";
-final _receiveTimeout = const Duration(seconds: 120);
-final _connectTimeout = const Duration(seconds: 120);
-final _sendTimeout = const Duration(seconds: 120);
+  final _receiveTimeout = const Duration(seconds: 30);
+  final _connectTimeout = const Duration(seconds: 30);
+  final _sendTimeout = const Duration(seconds: 30);
 
   late Dio _dio;
   bool isDev = false;
@@ -36,13 +37,21 @@ final _sendTimeout = const Duration(seconds: 120);
 
     _dio = Dio(baseOptions);
 
-    // Add the Interceptors here
-    if(isDev){
-    _dio.interceptors.add(prettyDioLogger);
-    }else{
-      _dio.interceptors.add(customInterceptor);
+    _dio.interceptors.add(CustomInterceptor());
+
+    if (isDev) {
+      _dio.interceptors.add(
+        PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseBody: true,
+          responseHeader: false,
+          error: true,
+          compact: true,
+          maxWidth: 90,
+        ),
+      );
     }
-   
 
     return _dio;
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:manga/colors/app_color.dart';
 
 typedef Future<bool> OnNextPage(int nextPage);
 
@@ -72,7 +73,7 @@ class _GridViewPaginationState extends State<GridViewPagination> {
           ),
           if (isLoading)
             SizedBox(
-              child: SpinKitThreeBounce(color: Colors.white, size: 30.0),
+              child: SpinKitThreeBounce(color: AppColors.white, size: 30.0),
             ),
         ],
       ),

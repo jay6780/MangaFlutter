@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'page/home.dart';
+
+import 'screens/home.dart'; // Assuming this contains GenrePage
 
 void main() {
   runApp(const Home());

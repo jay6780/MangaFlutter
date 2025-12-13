@@ -13,6 +13,7 @@ class AppColors {
   static const Color white = Color(0xFFFFFFFF);
   // Error color
   static const Color error = Color(0xFFB00020);
+  static const Color grey = Color(0xFFE0E0E0);
 
   // Text colors
   static const Color onPrimary = Color(0xFFFFFFFF);

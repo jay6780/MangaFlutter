@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:manga/Beans/genre_name_bean.dart';
-import 'package:manga/Beans/manga_bean.dart';
+import 'package:manga/models/genre_name_bean.dart';
+import 'package:manga/models/manga_bean.dart';
 
 class RemoteDataSource {
   final Dio dio;

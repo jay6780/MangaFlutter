@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:manga/Beans/manga_bean.dart';
+import 'package:manga/models/manga_bean.dart';
 import 'package:manga/providers/remote_data_source.dart';
 import 'package:logger/logger.dart';
 
@@ -41,6 +41,8 @@ class Mangalistnotifier extends ChangeNotifier {
         _currentPage = 1;
         if (isSearch) {
           _searchQuery = genreOrQuery;
+        } else {
+          _searchQuery = null;
         }
       }
 
@@ -52,17 +54,20 @@ class Mangalistnotifier extends ChangeNotifier {
       final response;
 
       if (isSearch) {
-        // Call search method
         response = await remoteDataSource.getSearchList(genreOrQuery);
-      } else {
-        // Call regular manga list method
-        response = await remoteDataSource.getMangaList(genreOrQuery, page);
-      }
-
-      if (response.getManga.isEmpty) {
         _hasMore = false;
       } else {
-        manga.addAll(response.getManga);
+        response = await remoteDataSource.getMangaList(genreOrQuery, page);
+        _hasMore = response.getManga.isNotEmpty;
+      }
+
+      if (isRefresh) {
+        manga.clear();
+      }
+
+      manga.addAll(response.getManga);
+
+      if (!isSearch) {
         _currentPage = page;
       }
 
@@ -71,7 +76,7 @@ class Mangalistnotifier extends ChangeNotifier {
     } catch (error) {
       _uiState = UimangaState.error;
       _message = error.toString();
-      logger.e("Error fetching manga: $error");
+      // logger.e("Error fetching manga: $error");
       _hasMore = false;
       notifyListeners();
     }

@@ -1,60 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:manga/providers/notifiers/Genrequerynotifier.dart';
-import 'package:manga/page/manga_page.dart';
+import 'package:manga/providers/Genrequerynotifier.dart';
+import 'package:manga/features/manga_page.dart';
 import '../colors/app_color.dart';
-import '../providers/remote_data_source.dart';
-import '../Service/api_service.dart';
-import '../providers/notifiers/genrenamenotifier.dart';
+import '../providers/genrenamenotifier.dart';
+import '../providers/mangalistnotifier.dart';
 import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-class Home extends StatelessWidget {
-  const Home({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    const String appTitle = 'Free manga';
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => Genrequerynotifier()),
-        ChangeNotifierProvider(
-          create: (_) => Genrenamenotifier(
-            remoteDataSource: RemoteDataSource(dio: ApiService().provideDio()),
-          )..fetchGenrelist(),
-        ),
-      ],
-      child: MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppColors.background,
-            title: Stack(
-              children: [
-                SizedBox(
-                  width: 40.0,
-                  height: 40.0,
-                  child: SvgPicture.asset('images/menu.svg'),
-                ),
-                Center(
-                  child: Text(
-                    appTitle,
-                    style: GoogleFonts.robotoCondensed(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          body: const GenrePage(),
-        ),
-      ),
-    );
-  }
-}
 
 class GenrePage extends StatefulWidget {
   const GenrePage({super.key});
@@ -74,22 +27,18 @@ class _GenrePageState extends State<GenrePage> {
   }
 
   @override
-  void dispose() {
-    Provider.of<Genrequerynotifier>(context, listen: false);
-    Provider.of<Genrenamenotifier>(context, listen: false);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final queryController = TextEditingController();
+
     return Container(
       color: AppColors.background,
+
       child: Consumer<Genrenamenotifier>(
         builder: (context, value, child) {
           if (value.uiState == UiState.loading) {
             return const Center(
               child: DecoratedBox(
-                decoration: BoxDecoration(color: Colors.green),
+                decoration: BoxDecoration(color: AppColors.background),
               ),
             );
           } else if (value.uiState == UiState.error) {
@@ -97,7 +46,7 @@ class _GenrePageState extends State<GenrePage> {
             return Center(
               child: Text(
                 'Error: ${value.message}',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColors.white),
               ),
             );
           }
@@ -116,6 +65,7 @@ class _GenrePageState extends State<GenrePage> {
                           end: 10.0,
                         ),
                         child: TextField(
+                          controller: queryController,
                           cursorColor: AppColors.white,
                           style: TextStyle(color: AppColors.white),
                           decoration: InputDecoration(
@@ -145,10 +95,33 @@ class _GenrePageState extends State<GenrePage> {
                         top: 20.0,
                         end: 10.0,
                       ),
-                      child: SizedBox(
-                        width: 35.00,
-                        height: 35.00,
-                        child: SvgPicture.asset('images/send.svg'),
+                      child: GestureDetector(
+                        onTap: () {
+                          String enteredText = queryController.text;
+                          if (enteredText.isEmpty) {
+                            const snackBar = SnackBar(
+                              content: Text('Please enter manga name!'),
+                              duration: Duration(seconds: 1),
+                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
+                            return;
+                          }
+
+                          // Update the provider state
+                          Provider.of<Mangalistnotifier>(
+                            context,
+                            listen: false,
+                          ).fetchMangaList(enteredText.trim(), 1, true, true);
+
+                          print("Sidebox tapped! $enteredText");
+                        },
+                        child: Container(
+                          width: 35.00,
+                          height: 35.00,
+                          child: SvgPicture.asset('images/send.svg'),
+                        ),
                       ),
                     ),
                   ],
@@ -161,7 +134,7 @@ class _GenrePageState extends State<GenrePage> {
                     style: GoogleFonts.robotoCondensed(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.white,
                     ),
                   ),
                 ),
@@ -195,7 +168,7 @@ class _GenrePageState extends State<GenrePage> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.select_color
-                                : Colors.white,
+                                : AppColors.white,
                             borderRadius: BorderRadius.circular(20.0),
                           ),
                           child: Center(
@@ -204,7 +177,9 @@ class _GenrePageState extends State<GenrePage> {
                               style: GoogleFonts.robotoCondensed(
                                 fontSize: 13.0,
                                 fontWeight: FontWeight.bold,
-                                color: isSelected ? Colors.white : Colors.black,
+                                color: isSelected
+                                    ? AppColors.white
+                                    : AppColors.onBackground,
                               ),
                             ),
                           ),

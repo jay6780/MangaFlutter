@@ -28,4 +28,17 @@ class RemoteDataSource {
       }
     }
   }
+
+  Future<MangaBean> getSearchList(String query) async {
+    try {
+      final response = await dio.get("api/search/$query");
+      return MangaBean.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('Server error: ${e.response?.statusCode}');
+      } else {
+        throw Exception('Network error: ${e.message}');
+      }
+    }
+  }
 }

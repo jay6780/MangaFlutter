@@ -4,18 +4,27 @@ import 'timeout.dart';
 class CustomInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    DioException exception;
+
     switch (err.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        throw TimeoutException(requestOptions: err.requestOptions);
+        exception = TimeoutException(requestOptions: err.requestOptions);
+        break;
       case DioExceptionType.connectionError:
-        throw NoInternetException(requestOptions: err.requestOptions);
+        exception = NoInternetException(requestOptions: err.requestOptions);
+        break;
       case DioExceptionType.badCertificate:
       case DioExceptionType.badResponse:
       case DioExceptionType.cancel:
       case DioExceptionType.unknown:
-        throw UnknownErrorException(requestOptions: err.requestOptions);
+        exception = UnknownErrorException(requestOptions: err.requestOptions);
+        break;
+      default:
+        exception = err;
     }
+
+    handler.reject(exception);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manga/providers/notifiers/Genrequerynotifier.dart';
 import 'package:manga/widgets/gridview_pagination.dart';
@@ -7,6 +8,8 @@ import 'package:manga/providers/notifiers/mangalistnotifier.dart';
 import 'package:provider/provider.dart';
 import '../Service/api_service.dart';
 import 'package:manga/Beans/manga_bean.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MangaPage extends StatefulWidget {
   @override
@@ -15,6 +18,13 @@ class MangaPage extends StatefulWidget {
 
 class MangaPageState extends State<MangaPage> {
   String genrename = "";
+
+  @override
+  void dispose() {
+    Provider.of<Genrequerynotifier>(context, listen: false);
+    Provider.of<Mangalistnotifier>(context, listen: false);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +51,7 @@ class MangaPageState extends State<MangaPage> {
                     : genrename.toLowerCase(),
                 1,
                 true,
+                false,
               ),
         ),
       ],
@@ -49,12 +60,11 @@ class MangaPageState extends State<MangaPage> {
           if (notifier.uiState == UimangaState.loading &&
               notifier.manga.isEmpty) {
             return Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(Colors.white),
-              ),
+              child: SpinKitThreeBounce(color: Colors.white, size: 30.0),
             );
           } else if (notifier.uiState == UimangaState.error &&
               notifier.manga.isEmpty) {
+            Provider.of<Mangalistnotifier>(context, listen: false);
             return Center(
               child: Text(
                 'Error loading data',
@@ -90,6 +100,7 @@ Future<bool> _loadPage(BuildContext context, int page, String genrename) async {
       genrename.toLowerCase().isEmpty ? "All" : genrename.toLowerCase(),
       page,
       false,
+      false,
     );
 
     return notifier.hasMore;
@@ -105,27 +116,39 @@ Widget _buildMangaCard(BuildContext context, Manga manga) {
     shadowColor: Colors.black,
     color: Colors.white,
     child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SizedBox(
+        Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(7.0),
-            child: Image.network(
-              manga.getImage,
+            child: CachedNetworkImage(
+              imageUrl: manga.getImage.isEmpty
+                  ? manga.getImgUrl
+                  : manga.getImage,
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(color: Colors.white),
+              ),
+              errorWidget: (context, url, error) => Icon(Icons.error),
               width: double.infinity,
-              height: 145.00,
+              height: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
         ),
-        Text(
-          manga.getTitle,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.robotoCondensed(
-            fontSize: 15.00,
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            manga.getTitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.robotoCondensed(
+              fontSize: 15.00,
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],

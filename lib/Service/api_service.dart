@@ -4,12 +4,12 @@ import 'package:manga/Service/interceptor.dart';
 
 class ApiService {
   final _baseUrl = "https://gomanga-api.vercel.app/";
-  final _receiveTimeout = const Duration(seconds: 30);
-  final _connectTimeout = const Duration(seconds: 30);
-  final _sendTimeout = const Duration(seconds: 30);
+  // final _receiveTimeout = const Duration(seconds: 10);
+  // final _connectTimeout = const Duration(seconds: 10);
+  // final _sendTimeout = const Duration(seconds: 10);
 
   late Dio _dio;
-  bool isDev = false;
+  bool isDev = true;
   ApiService._internal();
 
   static final ApiService _apiService = ApiService._internal();
@@ -19,21 +19,10 @@ class ApiService {
   Dio provideDio() {
     BaseOptions baseOptions = BaseOptions(
       baseUrl: _baseUrl,
-      receiveTimeout: _receiveTimeout,
-      connectTimeout: _connectTimeout,
-      sendTimeout: _sendTimeout,
+      // receiveTimeout: _receiveTimeout,
+      // connectTimeout: _connectTimeout,
+      // sendTimeout: _sendTimeout,
     );
-
-    PrettyDioLogger prettyDioLogger = PrettyDioLogger(
-      requestHeader: true,
-      requestBody: true,
-      responseBody: true,
-      responseHeader: false,
-      error: true,
-      compact: true,
-      maxWidth: 90,
-    );
-    Interceptor customInterceptor = CustomInterceptor();
 
     _dio = Dio(baseOptions);
 

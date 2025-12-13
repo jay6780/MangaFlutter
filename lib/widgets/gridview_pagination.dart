@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 typedef Future<bool> OnNextPage(int nextPage);
 
@@ -44,22 +46,34 @@ class _GridViewPaginationState extends State<GridViewPagination> {
         }
         return true;
       },
-      child: CustomScrollView(
-        slivers: <Widget>[
-          SliverGrid(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisSpacing: 1,
-              mainAxisSpacing: 1,
-              crossAxisCount: 2,
-              childAspectRatio: widget.childAspectRatio,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => widget.itemBuilder(context, index),
-              childCount: widget.itemCount,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: GridView.custom(
+              gridDelegate: SliverWovenGridDelegate.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                pattern: [
+                  WovenGridTile(1),
+                  WovenGridTile(
+                    5 / 7,
+                    crossAxisRatio: 0.9,
+                    alignment: AlignmentDirectional.centerEnd,
+                  ),
+                ],
+              ),
+              childrenDelegate: SliverChildBuilderDelegate(
+                (context, index) => widget.itemBuilder(context, index),
+                childCount: widget.itemCount,
+              ),
             ),
           ),
           if (isLoading)
-            SliverToBoxAdapter(child: widget.progressBuilder(context)),
+            SizedBox(
+              child: SpinKitThreeBounce(color: Colors.white, size: 30.0),
+            ),
         ],
       ),
     );

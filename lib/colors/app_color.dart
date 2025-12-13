@@ -10,7 +10,7 @@ class AppColors {
   // Background colors
   static const Color background = Color(0xFF262626);
   static const Color surface = Color(0xFFFFFFFF);
-
+  static const Color white = Color(0xFFFFFFFF);
   // Error color
   static const Color error = Color(0xFFB00020);
 

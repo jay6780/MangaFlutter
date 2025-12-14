@@ -54,13 +54,13 @@ class _GridViewPaginationState extends State<GridViewPagination> {
             child: GridView.custom(
               gridDelegate: SliverWovenGridDelegate.count(
                 crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
+                mainAxisSpacing: 3,
+                crossAxisSpacing: 3,
                 pattern: [
                   WovenGridTile(1),
                   WovenGridTile(
-                    5 / 7,
-                    crossAxisRatio: 0.9,
+                    7 / 8,
+                    crossAxisRatio: 1.0,
                     alignment: AlignmentDirectional.centerEnd,
                   ),
                 ],

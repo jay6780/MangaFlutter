@@ -23,13 +23,13 @@ class MangaPage extends StatelessWidget {
         .toString()
         .trim()
         .toLowerCase();
-
     context.watch<RefreshNotifier>().shouldRefresh;
-
-    Provider.of<Mangalistnotifier>(
-      context,
-      listen: false,
-    ).fetchMangaList(genrename, 1, true, false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<Mangalistnotifier>(
+        context,
+        listen: false,
+      ).fetchMangaList(genrename, 1, true, false);
+    });
 
     return Consumer<Mangalistnotifier>(
       builder: (context, notifier, child) {

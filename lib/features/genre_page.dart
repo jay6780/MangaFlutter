@@ -8,6 +8,7 @@ import '../providers/mangalistnotifier.dart';
 import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manga/providers/refresh_notifier.dart';
 
 class GenrePage extends StatefulWidget {
   const GenrePage({super.key});
@@ -19,7 +20,9 @@ class _GenrePageState extends State<GenrePage> {
   int _selectedIndex = 0;
   String genrename = "All";
   late Logger logger;
-
+  final ScrollController _scrollController = ScrollController();
+  final queryController = TextEditingController();
+  String? enteredText = "";
   @override
   void initState() {
     super.initState();
@@ -27,12 +30,42 @@ class _GenrePageState extends State<GenrePage> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    queryController.dispose();
+    super.dispose();
+  }
+
+  void _handleRefresh() {
+    if (!queryController.text.isEmpty) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+      setState(() {
+        _selectedIndex = 0;
+        genrename = "All";
+        queryController.clear();
+      });
+      context.read<Genrequerynotifier>().selectGenre(genrename);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final queryController = TextEditingController();
+    final refreshNotifier = context.watch<RefreshNotifier>();
+    if (refreshNotifier.shouldRefresh) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        refreshNotifier.resetRefresh();
+        _handleRefresh();
+      });
+    }
 
     return Container(
       color: AppColors.background,
-
       child: Consumer<Genrenamenotifier>(
         builder: (context, value, child) {
           if (value.uiState == UiState.loading) {
@@ -71,7 +104,6 @@ class _GenrePageState extends State<GenrePage> {
                           decoration: InputDecoration(
                             hintText: 'Enter manga name',
                             hintStyle: TextStyle(color: AppColors.white),
-
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                 color: AppColors.white,
@@ -138,56 +170,64 @@ class _GenrePageState extends State<GenrePage> {
                     ),
                   ),
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(value.genrenameList.length, (
-                      index,
-                    ) {
-                      final isSelected = _selectedIndex == index;
-                      return GestureDetector(
-                        onTap: () {
-                          final newGenre = value.genrenameList[index];
-                          logger.d("genrename: $newGenre");
 
-                          context.read<Genrequerynotifier>().selectGenre(
-                            newGenre,
-                          );
+                NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    return false;
+                  },
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(value.genrenameList.length, (
+                        index,
+                      ) {
+                        final isSelected = _selectedIndex == index;
+                        return GestureDetector(
+                          onTap: () {
+                            final newGenre = value.genrenameList[index];
+                            logger.d("genrename: $newGenre");
 
-                          setState(() {
-                            genrename = newGenre;
-                            _selectedIndex = index;
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.select_color
-                                : AppColors.white,
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: Center(
-                            child: Text(
-                              value.genrenameList[index],
-                              style: GoogleFonts.robotoCondensed(
-                                fontSize: 13.0,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? AppColors.white
-                                    : AppColors.onBackground,
+                            context.read<Genrequerynotifier>().selectGenre(
+                              newGenre,
+                            );
+
+                            setState(() {
+                              genrename = newGenre;
+                              _selectedIndex = index;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.select_color
+                                  : AppColors.white,
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: Center(
+                              child: Text(
+                                value.genrenameList[index],
+                                style: GoogleFonts.robotoCondensed(
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected
+                                      ? AppColors.white
+                                      : AppColors.onBackground,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
                 ),
+
                 SizedBox(height: 10),
                 Expanded(child: MangaPage()),
               ],

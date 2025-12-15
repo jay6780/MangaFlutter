@@ -38,12 +38,20 @@ class DetailBean {
   set setImageUrl(imageUrl) => this.imageUrl = imageUrl;
 
   factory DetailBean.fromJson(Map<String, dynamic> json) => DetailBean(
+    id: json["id"]?.toString(),
+    title: json["title"]?.toString(),
+    imageUrl: json["imageUrl"]?.toString(),
+    genres: List<String>.from(json["genres"]?.map((x) => x.toString()) ?? []),
     chapters: List<Chapters>.from(
       json["chapters"].map((x) => Chapters.fromJson(x)),
     ),
   );
 
   Map<String, dynamic> toJson() => {
+    "id": id,
+    "title": title,
+    "imageUrl": imageUrl,
+    "genres": List<dynamic>.from(genres.map((x) => x)),
     "chapters": List<dynamic>.from(chapters.map((x) => x.toJson())),
   };
 }

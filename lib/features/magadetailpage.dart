@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:manga/colors/app_color.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:manga/providers/detaildatanotifier.dart';
 import 'package:provider/provider.dart';
-
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MangaDetailPage extends StatefulWidget {
-  String? imageUrl;
   String? id;
   String? description;
-  MangaDetailPage({
-    super.key,
-    required this.imageUrl,
-    required this.id,
-    required this.description,
-  });
+  MangaDetailPage({super.key, required this.id, required this.description});
 
   @override
   MangaDetailPageState createState() => MangaDetailPageState();
@@ -40,6 +35,10 @@ class MangaDetailPageState extends State<MangaDetailPage> {
         } else if (value.uiState == UiState.error) {
           return Center(child: Text(value.message.toString()));
         }
+
+        final detail = value.detailbeanList.first;
+        final String? image = detail.getImageUrl;
+
         return Column(
           children: [
             SizedBox(
@@ -51,8 +50,13 @@ class MangaDetailPageState extends State<MangaDetailPage> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: CachedNetworkImage(
-                      imageUrl: widget.imageUrl!,
+                      imageUrl: image!,
                       fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: AppColors.grey!,
+                        highlightColor: AppColors.grey!,
+                        child: Container(color: AppColors.white),
+                      ),
                     ),
                   ),
                   Padding(

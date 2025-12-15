@@ -10,15 +10,9 @@ import 'package:manga/service/remote_data_source.dart';
 import 'package:provider/provider.dart';
 
 class MangaDetail extends StatefulWidget {
-  String? imageUrl;
   String? id;
   String? description;
-  MangaDetail({
-    super.key,
-    required this.imageUrl,
-    required this.id,
-    required this.description,
-  });
+  MangaDetail({super.key, required this.id, required this.description});
 
   @override
   MangaDetailState createState() => MangaDetailState();
@@ -44,11 +38,7 @@ class MangaDetailState extends State<MangaDetail> {
       child: Scaffold(
         extendBodyBehindAppBar: true,
         backgroundColor: AppColors.background,
-        body: MangaDetailPage(
-          imageUrl: widget.imageUrl,
-          id: widget.id,
-          description: widget.description,
-        ),
+        body: MangaDetailPage(id: widget.id, description: widget.description),
       ),
     );
   }

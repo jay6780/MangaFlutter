@@ -119,12 +119,11 @@ Widget _buildMangaCard(BuildContext context, Manga manga) {
       final String description = manga.getDescription?.isEmpty ?? true
           ? ""
           : manga.getDescription;
-      print('Details: , image:, $imageUrl, id: , $id');
+      // print('Details: , image:, $imageUrl, id: , $id');
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              MangaDetail(imageUrl: imageUrl, id: id, description: description),
+          builder: (context) => MangaDetail(id: id, description: description),
         ),
       );
     },

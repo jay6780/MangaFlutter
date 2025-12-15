@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:manga/providers/remote_data_source.dart';
+import 'package:manga/service/remote_data_source.dart';
 
 enum UiState { loading, success, error }
 

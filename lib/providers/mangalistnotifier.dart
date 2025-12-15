@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:manga/models/manga_bean.dart';
-import 'package:manga/providers/remote_data_source.dart';
+import 'package:manga/service/remote_data_source.dart';
 import 'package:logger/logger.dart';
 
 enum UimangaState { loading, success, error }
@@ -59,10 +59,6 @@ class Mangalistnotifier extends ChangeNotifier {
       } else {
         response = await remoteDataSource.getMangaList(genreOrQuery, page);
         _hasMore = response.getManga.isNotEmpty;
-      }
-
-      if (isRefresh) {
-        manga.clear();
       }
 
       manga.addAll(response.getManga);

@@ -6,6 +6,7 @@ import 'package:manga/providers/refresh_notifier.dart';
 import 'package:manga/features/gridview_pagination.dart';
 import 'package:flutter/material.dart';
 import 'package:manga/providers/mangalistnotifier.dart';
+import 'package:manga/screens/manga_detail.dart';
 import 'package:provider/provider.dart';
 import 'package:manga/models/manga_bean.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -24,6 +25,7 @@ class MangaPage extends StatelessWidget {
         .trim()
         .toLowerCase();
     context.watch<RefreshNotifier>().shouldRefresh;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<Mangalistnotifier>(
         context,
@@ -108,47 +110,66 @@ Future<bool> _loadPage(BuildContext context, int page, String genrename) async {
 }
 
 Widget _buildMangaCard(BuildContext context, Manga manga) {
-  return Card(
-    elevation: 50,
-    shadowColor: AppColors.onBackground,
-    color: AppColors.white,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(7.0),
-            child: CachedNetworkImage(
-              imageUrl: manga.getImage?.isEmpty ?? true
-                  ? manga.getImgUrl
-                  : manga.getImage!,
-              placeholder: (context, url) => Shimmer.fromColors(
-                baseColor: AppColors.grey!,
-                highlightColor: AppColors.grey!,
-                child: Container(color: AppColors.white),
+  return GestureDetector(
+    onTap: () {
+      final String id = manga.getId;
+      final String imageUrl = manga.getImage?.isEmpty ?? true
+          ? manga.getImgUrl
+          : manga.getImage!;
+      final String description = manga.getDescription?.isEmpty ?? true
+          ? ""
+          : manga.getDescription;
+      print('Details: , image:, $imageUrl, id: , $id');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              MangaDetail(imageUrl: imageUrl, id: id, description: description),
+        ),
+      );
+    },
+    child: Card(
+      elevation: 50,
+      shadowColor: AppColors.onBackground,
+      color: AppColors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(7.0),
+              child: CachedNetworkImage(
+                imageUrl: manga.getImage?.isEmpty ?? true
+                    ? manga.getImgUrl
+                    : manga.getImage!,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: AppColors.grey!,
+                  highlightColor: AppColors.grey!,
+                  child: Container(color: AppColors.white),
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
               ),
-              errorWidget: (context, url, error) => Icon(Icons.error),
-              width: double.infinity,
-              height: double.infinity,
-              fit: BoxFit.cover,
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            manga.getTitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.robotoCondensed(
-              fontSize: 15.00,
-              color: AppColors.onBackground,
-              fontWeight: FontWeight.w500,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              manga.getTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.robotoCondensed(
+                fontSize: 15.00,
+                color: AppColors.onBackground,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }

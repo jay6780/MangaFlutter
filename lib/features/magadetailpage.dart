@@ -16,7 +16,15 @@ class MangaDetailPage extends StatefulWidget {
   MangaDetailPageState createState() => MangaDetailPageState();
 }
 
-class MangaDetailPageState extends State<MangaDetailPage> {
+class MangaDetailPageState extends State<MangaDetailPage>
+    with TickerProviderStateMixin {
+  late TabController tabController;
+  @override
+  void initState() {
+    tabController = TabController(vsync: this, length: 2);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -39,47 +47,90 @@ class MangaDetailPageState extends State<MangaDetailPage> {
         final detail = value.detailbeanList.first;
         final String? image = detail.getImageUrl;
 
-        return Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 250,
-              child: Stack(
-                alignment: Alignment.topLeft,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: CachedNetworkImage(
-                      imageUrl: image!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: AppColors.grey!,
-                        highlightColor: AppColors.grey!,
-                        child: Container(color: AppColors.white),
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: NestedScrollView(
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+                  return <Widget>[
+                    SliverAppBar(
+                      backgroundColor: AppColors.background,
+                      automaticallyImplyLeading: false,
+                      expandedHeight: 240.0,
+                      floating: false,
+                      pinned: false,
+                      surfaceTintColor: Colors.transparent,
+                      leading: IconButton(
+                        icon: Image.asset(
+                          'images/back_white_home.png',
+                          width: 35,
+                          height: 35,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.transparent,
+                          shape: CircleBorder(),
+                        ),
+                      ),
+
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: CachedNetworkImage(
+                            imageUrl: image!,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: AppColors.grey!,
+                              highlightColor: AppColors.grey!,
+                              child: Container(color: AppColors.white),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
+                  ];
+                },
+            body: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 20.0),
+                  child: TabBar(
+                    controller: tabController,
+                    labelColor: AppColors.select_color,
+                    unselectedLabelColor: Colors.white70,
+                    indicatorColor: AppColors.select_color,
+                    dividerColor: Colors.transparent,
+                    tabs: [
+                      Tab(text: "Synopsis"),
+                      Tab(text: "Chapters"),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20.0, left: 5),
-                    child: IconButton(
-                      icon: Image.asset(
-                        'images/back_white_home.png',
-                        width: 35,
-                        height: 35,
+                ),
+
+                Expanded(
+                  child: TabBarView(
+                    controller: tabController,
+                    children: [
+                      const Center(
+                        child: Text(
+                          "Page 1",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.transparent,
-                        shape: CircleBorder(),
+                      const Center(
+                        child: Text(
+                          "Page 2",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

@@ -4,12 +4,12 @@ import 'package:manga/service/interceptor.dart';
 
 class ApiService {
   final _baseUrl = "https://gomanga-api.vercel.app/";
-  final _receiveTimeout = const Duration(seconds: 5);
-  final _connectTimeout = const Duration(seconds: 5);
-  final _sendTimeout = const Duration(seconds: 5);
+  final _receiveTimeout = const Duration(seconds: 60);
+  final _connectTimeout = const Duration(seconds: 60);
+  final _sendTimeout = const Duration(seconds: 60);
 
   late Dio _dio;
-  bool isDev = false;
+  bool isDev = true;
   ApiService._internal();
 
   static final ApiService _apiService = ApiService._internal();

@@ -40,13 +40,29 @@ class MangaPage extends StatelessWidget {
           return Center(
             child: SpinKitThreeBounce(color: AppColors.white, size: 30.0),
           );
-        } else if (notifier.uiState == UimangaState.error &&
-            notifier.searchQuery == null) {
-          return Center(
-            child: Text(
-              'Error loading data',
-              style: TextStyle(color: AppColors.white),
-            ),
+        } else if (notifier.uiState == UimangaState.error) {
+          return Consumer<RefreshNotifier>(
+            builder: (context, refreshNotifier, child) {
+              return AlertDialog(
+                title: Text("Error warning!"),
+                content: Text(notifier.message.toString()),
+                actions: [
+                  TextButton(
+                    child: Text(
+                      "OK",
+                      style: GoogleFonts.robotoCondensed(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.onBackground,
+                      ),
+                    ),
+                    onPressed: () {
+                      refreshNotifier.triggerRefresh();
+                    },
+                  ),
+                ],
+              );
+            },
           );
         } else if (notifier.manga.isEmpty) {
           return Center(

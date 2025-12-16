@@ -181,97 +181,95 @@ class MangaDetailPageState extends State<MangaDetailPage>
                           ),
                         ],
                       ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: chapterList.length,
-                          itemBuilder: (context, index) {
-                            // variables
-                            final String chapterId =
-                                chapterList[index].getChapterId;
-                            final String views = chapterList[index].getViews;
-                            final String uploaded =
-                                chapterList[index].getUploaded;
-                            final String timestamp =
-                                chapterList[index].getTimestamp;
+                      ListView.builder(
+                        itemCount: chapterList.length,
+                        itemBuilder: (context, index) {
+                          // variables
+                          final String chapterId =
+                              chapterList[index].getChapterId;
+                          final String views = chapterList[index].getViews;
+                          final String uploaded =
+                              chapterList[index].getUploaded;
+                          final String timestamp =
+                              chapterList[index].getTimestamp;
 
-                            return InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Imagelist(
-                                      id: widget.id,
-                                      chapterId: chapterId,
+                          return InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Imagelist(
+                                    id: widget.id,
+                                    chapterId: chapterId,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                    left: 5.0,
+                                    top: 5.0,
+                                  ),
+                                  child: Text(
+                                    'Chapter: $chapterId',
+                                    style: GoogleFonts.robotoCondensed(
+                                      fontSize: 15.00,
+                                      color: AppColors.white,
                                     ),
                                   ),
-                                );
-                              },
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                      left: 5.0,
-                                      top: 5.0,
-                                    ),
-                                    child: Text(
-                                      'Chapter: $chapterId',
-                                      style: GoogleFonts.robotoCondensed(
-                                        fontSize: 15.00,
-                                        color: AppColors.white,
-                                      ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                    left: 5.0,
+                                    top: 5.0,
+                                  ),
+                                  child: Text(
+                                    'Views: $views',
+                                    style: GoogleFonts.robotoCondensed(
+                                      fontSize: 15.00,
+                                      color: AppColors.white,
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                      left: 5.0,
-                                      top: 5.0,
-                                    ),
-                                    child: Text(
-                                      'Views: $views',
-                                      style: GoogleFonts.robotoCondensed(
-                                        fontSize: 15.00,
-                                        color: AppColors.white,
-                                      ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                    left: 5.0,
+                                    top: 5.0,
+                                  ),
+                                  child: Text(
+                                    'Uploaded: $uploaded',
+                                    style: GoogleFonts.robotoCondensed(
+                                      fontSize: 15.00,
+                                      color: AppColors.white,
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                      left: 5.0,
-                                      top: 5.0,
-                                    ),
-                                    child: Text(
-                                      'Uploaded: $uploaded',
-                                      style: GoogleFonts.robotoCondensed(
-                                        fontSize: 15.00,
-                                        color: AppColors.white,
-                                      ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                    left: 5.0,
+                                    top: 5.0,
+                                  ),
+                                  child: Text(
+                                    'Timestamp: $timestamp',
+                                    style: GoogleFonts.robotoCondensed(
+                                      fontSize: 15.00,
+                                      color: AppColors.white,
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                      left: 5.0,
-                                      top: 5.0,
-                                    ),
-                                    child: Text(
-                                      'Timestamp: $timestamp',
-                                      style: GoogleFonts.robotoCondensed(
-                                        fontSize: 15.00,
-                                        color: AppColors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  Divider(
-                                    // Horizontal line
-                                    color: AppColors.white,
-                                    thickness: 1,
-                                    height: 2, // Total height including padding
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                                ),
+                                Divider(
+                                  // Horizontal line
+                                  color: AppColors.white,
+                                  thickness: 1,
+                                  height: 2, // Total height including padding
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

@@ -8,6 +8,8 @@ class DetailBean {
   String? id;
   String? title;
   String? imageUrl;
+  String? status;
+
   List<String> genres = [];
   List<Chapters> chapters = [];
 
@@ -15,9 +17,13 @@ class DetailBean {
     this.id,
     this.title,
     this.imageUrl,
+    this.status,
     List<String>? genres,
     List<Chapters>? chapters,
-  }) {}
+  }) {
+    this.genres = genres ?? [];
+    this.chapters = chapters ?? [];
+  }
   get getGenres => this.genres;
 
   set setGenres(genres) => this.genres = genres;
@@ -36,11 +42,15 @@ class DetailBean {
   get getImageUrl => this.imageUrl;
 
   set setImageUrl(imageUrl) => this.imageUrl = imageUrl;
+  get getStatus => this.status;
+
+  set setStatus(status) => this.status = status;
 
   factory DetailBean.fromJson(Map<String, dynamic> json) => DetailBean(
     id: json["id"]?.toString(),
     title: json["title"]?.toString(),
     imageUrl: json["imageUrl"]?.toString(),
+    status: json["status"]?.toString(),
     genres: List<String>.from(json["genres"]?.map((x) => x.toString()) ?? []),
     chapters: List<Chapters>.from(
       json["chapters"].map((x) => Chapters.fromJson(x)),
@@ -51,6 +61,7 @@ class DetailBean {
     "id": id,
     "title": title,
     "imageUrl": imageUrl,
+    "status": status,
     "genres": List<dynamic>.from(genres.map((x) => x)),
     "chapters": List<dynamic>.from(chapters.map((x) => x.toJson())),
   };

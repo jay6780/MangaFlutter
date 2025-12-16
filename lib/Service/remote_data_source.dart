@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:manga/models/Imageurl.bean.dart';
 import 'package:manga/models/detail_bean.dart';
 import 'package:manga/models/genre_name_bean.dart';
 import 'package:manga/models/manga_bean.dart';
@@ -53,6 +54,15 @@ class RemoteDataSource {
       } else {
         throw Exception('Network error: ${e.message}');
       }
+    }
+  }
+
+  Future<ImageurlBean> getImageList(String id, String chapterId) async {
+    try {
+      final response = await dio.get("api/manga/$id/$chapterId");
+      return ImageurlBean.fromJson(response.data);
+    } on DioException catch (error) {
+      throw Exception(error);
     }
   }
 }

@@ -33,12 +33,10 @@ class ImagelistpageState extends State<Imagelist> {
           backgroundColor: AppColors.background,
           title: SizedBox(
             width: double.infinity,
-            height: 80.0,
             child: Stack(
               children: [
-                Positioned(
-                  left: 0.0,
-                  top: 20.0,
+                Align(
+                  alignment: Alignment.topLeft,
                   child: Builder(
                     builder: (BuildContext context) {
                       return IconButton(
@@ -57,7 +55,8 @@ class ImagelistpageState extends State<Imagelist> {
                     },
                   ),
                 ),
-                Center(
+                Align(
+                  alignment: Alignment.topCenter,
                   child: Container(
                     margin: EdgeInsets.only(top: 10.0),
                     child: Text(

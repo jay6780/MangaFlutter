@@ -13,6 +13,8 @@ class ImagelistPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ScrollController _controller = ScrollController();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Consumer<Imageurldatanotifer>(
@@ -34,15 +36,16 @@ class ImagelistPage extends StatelessWidget {
           }
 
           return InteractiveViewer(
-            panEnabled: true, // Set it to false to prevent panning.
+            panEnabled: true,
             boundaryMargin: EdgeInsets.all(0),
             minScale: 1.0,
             maxScale: 20.0,
-            child: ListView.builder(
-              itemCount: value.imageUrls.length,
-              itemBuilder: (context, index) {
-                return SizedBox(
-                  child: Padding(
+            child: SingleChildScrollView(
+              controller: _controller,
+              child: Column(
+                children: List.generate(
+                  value.imageUrls.length,
+                  (index) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 0.0),
                     child: CachedNetworkImage(
                       imageUrl: value.imageUrls[index],
@@ -55,8 +58,8 @@ class ImagelistPage extends StatelessWidget {
                       fit: BoxFit.fill,
                     ),
                   ),
-                );
-              },
+                ),
+              ),
             ),
           );
         },

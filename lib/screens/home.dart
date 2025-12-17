@@ -46,9 +46,8 @@ class Home extends StatelessWidget {
               height: 50.0,
               child: Stack(
                 children: [
-                  Positioned(
-                    left: 0.0,
-                    top: 5.0,
+                  Align(
+                    alignment: Alignment.topLeft,
                     child: Builder(
                       builder: (BuildContext context) {
                         return IconButton(
@@ -67,7 +66,8 @@ class Home extends StatelessWidget {
                       },
                     ),
                   ),
-                  Center(
+                  Align(
+                    alignment: Alignment.topCenter,
                     child: Container(
                       margin: EdgeInsets.only(top: 10.0),
                       child: Text(
@@ -80,9 +80,8 @@ class Home extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    right: 0.0,
-                    top: 5.0,
+                  Align(
+                    alignment: Alignment.topRight,
                     child: Consumer<RefreshNotifier>(
                       builder: (context, refreshNotifier, child) {
                         return IconButton(

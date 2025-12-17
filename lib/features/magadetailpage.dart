@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
@@ -64,8 +66,12 @@ class MangaDetailPageState extends State<MangaDetailPage>
           chapterList.addAll(detailBean.chapters);
           genres.addAll(detailBean.getGenres);
         }
-        chapterList.sort((a, b) => a.getChapterId.compareTo(b.getChapterId));
-        genre = genres.join(',');
+        chapterList.sort((a, b) {
+          final aNum = int.tryParse(a.getChapterId.split('-').first) ?? 0;
+          final bNum = int.tryParse(b.getChapterId.split('-').first) ?? 0;
+          return aNum.compareTo(bNum);
+        });
+        genre = genres.join(', ');
 
         mangaDesc = widget.description;
 
@@ -82,18 +88,21 @@ class MangaDetailPageState extends State<MangaDetailPage>
                       floating: false,
                       pinned: false,
                       surfaceTintColor: Colors.transparent,
-                      leading: IconButton(
-                        icon: Image.asset(
-                          'images/back_white_home.png',
-                          width: 35,
-                          height: 35,
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: IconButton.styleFrom(
-                          backgroundColor: AppColors.transparent,
-                          shape: CircleBorder(),
+                      leading: Align(
+                        alignment: Alignment.topLeft,
+                        child: IconButton(
+                          icon: Image.asset(
+                            'images/back_white_home.png',
+                            width: 35,
+                            height: 35,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.transparent,
+                            shape: CircleBorder(),
+                          ),
                         ),
                       ),
 

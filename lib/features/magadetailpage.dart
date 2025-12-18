@@ -12,6 +12,7 @@ import 'package:manga/utils/hivecontroller.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class MangaDetailPage extends StatefulWidget {
   final String? id;
@@ -42,6 +43,17 @@ class MangaDetailPageState extends State<MangaDetailPage>
   void initState() {
     tabController = TabController(vsync: this, length: 2);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    Provider.of<Detaildatanotifier>(
+      context,
+      listen: false,
+    ).getDetailData(widget.id.toString());
+
+    tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -335,9 +347,19 @@ class MangaDetailPageState extends State<MangaDetailPage>
   }
 
   Future<void> _loadBookmarks() async {
-    setState(() {
-      isBookmarked = _isMangaBookmarked(widget.id ?? '');
-    });
+    try {
+      print('Loading bookmarks for manga: ${widget.id}');
+      final items = _hiveController.fetchData();
+      print('Total bookmarks in Hive: ${items.length}');
+      print('Bookmarks: $items');
+
+      setState(() {
+        isBookmarked = _isMangaBookmarked(widget.id ?? '');
+        print('Is bookmarked: $isBookmarked');
+      });
+    } catch (e) {
+      print('Error loading bookmarks: $e');
+    }
   }
 
   Future<void> _createBookmark() async {
@@ -345,7 +367,6 @@ class MangaDetailPageState extends State<MangaDetailPage>
 
     final item = Item(
       title: title!,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
       description: mangaDesc ?? '',
       id: widget.id!,
       imageUrl: image!,

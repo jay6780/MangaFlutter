@@ -1,41 +1,42 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-class Item extends Equatable {
+part 'Item.g.dart';
+
+@HiveType(typeId: 0) // Choose a unique typeId (0-223)
+class Item extends HiveObject with EquatableMixin {
+  @HiveField(0)
   final String title;
-  final int timestamp;
+
+  @HiveField(1)
   final String description;
+
+  @HiveField(2)
   final String id;
+
+  @HiveField(3)
   final String imageUrl;
-  const Item({
+
+  Item({
     required this.title,
-    required this.timestamp,
     required this.description,
     required this.id,
     required this.imageUrl,
   });
 
   @override
-  List<Object> get props => [title, timestamp, description, id];
+  List<Object> get props => [title, description, id, imageUrl];
 
-  // Convert Item to Map for Hive storage
-  Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-      'timestamp': timestamp,
-      'description': description,
-      'id': id,
-      'imageUrl': imageUrl,
-    };
+  @override
+  String toString() {
+    return 'Item{title: $title, id: $id}';
   }
 
-  // Create Item from Map
-  factory Item.fromMap(Map<String, dynamic> map) {
-    return Item(
-      title: map['title'],
-      timestamp: map['timestamp'],
-      description: map['description'],
-      id: map['id'],
-      imageUrl: map['imageUrl'],
-    );
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Item && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

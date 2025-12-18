@@ -10,6 +10,6 @@ void toastInfo({required String msg, required Status status}) {
         ? AppColors.error
         : AppColors.background,
     toastLength: Toast.LENGTH_LONG,
-    gravity: ToastGravity.TOP,
+    gravity: ToastGravity.BOTTOM,
   );
 }

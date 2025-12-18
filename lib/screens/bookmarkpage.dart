@@ -21,43 +21,14 @@ class BookmarkpageState extends State<Bookmarkpage> {
 
   List<Item> getBookmarksFromHive() {
     final bookmarks = <Item>[];
-
-    for (var key in _hiveBox.keys) {
+    final keys = _hiveBox.keys.toList();
+    for (var key in keys) {
       final item = _hiveBox.get(key);
-      if (item is Map) {
-        try {
-          final bookmark = Item(
-            id: item['id']?.toString() ?? key.toString(),
-            timestamp: _parseTimestamp(item['timestamp']),
-            title: item['title']?.toString() ?? 'Untitled',
-            description: item['description']?.toString() ?? '',
-            imageUrl:
-                item['imageUrl']?.toString() ??
-                item['coverImage']?.toString() ??
-                '',
-          );
-          bookmarks.add(bookmark);
-        } catch (e) {
-          print('Error converting Hive item to BookmarkBean: $e');
-        }
+      if (item != null && item is Item) {
+        bookmarks.add(item);
       }
     }
-
     return bookmarks.reversed.toList();
-  }
-
-  int _parseTimestamp(dynamic timestampValue) {
-    if (timestampValue == null) return 0;
-
-    if (timestampValue is int) {
-      return timestampValue;
-    } else if (timestampValue is String) {
-      return int.tryParse(timestampValue) ?? 0;
-    } else if (timestampValue is double) {
-      return timestampValue.toInt();
-    } else {
-      return 0;
-    }
   }
 
   @override

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manga/models/Item.dart';
 import 'package:manga/constants/stringconstants.dart';
-import 'package:manga/screens/bookmarkpage.dart';
 
 import 'package:manga/utils/toast.dart';
 
@@ -19,15 +18,23 @@ class HiveController {
   List<Map<String, dynamic>> fetchData() {
     return hiveBox.keys
         .map((key) {
-          final item = hiveBox.get(key) as Map<String, dynamic>;
-          final itemObject = Item.fromMap(item);
+          // Get as Item object directly
+          final item = hiveBox.get(key) as Item?;
+          if (item == null) {
+            return {
+              'key': key,
+              'title': '',
+              'description': '',
+              'id': '',
+              'imageUrl': '',
+            };
+          }
           return {
             'key': key,
-            'title': itemObject.title,
-            'timestamp': itemObject.timestamp,
-            'description': itemObject.description,
-            'id': itemObject.id,
-            'imageUrl': itemObject.imageUrl,
+            'title': item.title,
+            'description': item.description,
+            'id': item.id,
+            'imageUrl': item.imageUrl,
           };
         })
         .toList()
@@ -37,7 +44,7 @@ class HiveController {
 
   Future<void> createItem({required Item item}) async {
     try {
-      await hiveBox.add(item.toMap());
+      await hiveBox.add(item);
       afterAction('Bookmark');
     } catch (e) {
       toastInfo(msg: 'Failed to bookmark', status: Status.error);
@@ -46,7 +53,7 @@ class HiveController {
 
   Future<void> editItem({required Item item, required int itemKey}) async {
     try {
-      hiveBox.put(itemKey, item.toMap());
+      hiveBox.put(itemKey, item);
       afterAction('edited');
     } catch (e) {
       toastInfo(msg: 'Failed to edit item', status: Status.error);

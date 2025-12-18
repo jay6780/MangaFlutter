@@ -9,7 +9,7 @@ class ApiService {
   final _sendTimeout = const Duration(seconds: 60);
 
   late Dio _dio;
-  bool isDev = true;
+  bool isDev = false;
   ApiService._internal();
 
   static final ApiService _apiService = ApiService._internal();

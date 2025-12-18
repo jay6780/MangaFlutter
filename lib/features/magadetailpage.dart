@@ -348,14 +348,14 @@ class MangaDetailPageState extends State<MangaDetailPage>
 
   Future<void> _loadBookmarks() async {
     try {
-      print('Loading bookmarks for manga: ${widget.id}');
+      // print('Loading bookmarks for manga: ${widget.id}');
       final items = _hiveController.fetchData();
-      print('Total bookmarks in Hive: ${items.length}');
-      print('Bookmarks: $items');
+      // print('Total bookmarks in Hive: ${items.length}');
+      // print('Bookmarks: $items');
 
       setState(() {
         isBookmarked = _isMangaBookmarked(widget.id ?? '');
-        print('Is bookmarked: $isBookmarked');
+        // print('Is bookmarked: $isBookmarked');
       });
     } catch (e) {
       print('Error loading bookmarks: $e');

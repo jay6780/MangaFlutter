@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:logger/web.dart';
 import 'package:manga/colors/app_color.dart';
 import 'package:manga/features/magadetailpage.dart';
-
 import 'package:manga/providers/detaildatanotifier.dart';
 import 'package:manga/service/api_service.dart';
 import 'package:manga/service/remote_data_source.dart';

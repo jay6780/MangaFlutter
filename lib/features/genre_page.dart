@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manga/providers/Genrequerynotifier.dart';
 import 'package:manga/features/manga_page.dart';
+import 'package:manga/utils/toast.dart';
 import '../colors/app_color.dart';
 import '../providers/genrenamenotifier.dart';
 import '../providers/mangalistnotifier.dart';
@@ -74,10 +75,42 @@ class _GenrePageState extends State<GenrePage> {
             );
           } else if (value.uiState == UiState.error) {
             logger.e('error: ', error: value.message.toString());
-            return Center(
-              child: Text(
-                'Error: ${value.message}',
-                style: TextStyle(color: AppColors.white),
+            return Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                margin: EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Failed to load data',
+                        style: GoogleFonts.robotoCondensed(
+                          fontSize: 15.00,
+                          color: AppColors.onBackground,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        refreshNotifier.triggerRefresh();
+                      },
+                      child: Text(
+                        'Retry',
+                        style: GoogleFonts.robotoCondensed(
+                          fontSize: 15.00,
+                          color: AppColors.onBackground,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }

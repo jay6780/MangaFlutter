@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:manga/constants/stringconstants.dart';
+import 'screens/home.dart';
 
-import 'screens/home.dart'; // Assuming this contains GenrePage
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
+  await Hive.initFlutter();
+
+  await Hive.openBox(StringConstants.hiveBox);
+
   runApp(const Home());
 }

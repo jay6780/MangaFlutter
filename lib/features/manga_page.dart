@@ -43,24 +43,43 @@ class MangaPage extends StatelessWidget {
         } else if (notifier.uiState == UimangaState.error) {
           return Consumer<RefreshNotifier>(
             builder: (context, refreshNotifier, child) {
-              return AlertDialog(
-                title: Text("Error warning!"),
-                content: Text(notifier.message.toString()),
-                actions: [
-                  TextButton(
-                    child: Text(
-                      "OK",
-                      style: GoogleFonts.robotoCondensed(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onBackground,
-                      ),
-                    ),
-                    onPressed: () {
-                      refreshNotifier.triggerRefresh();
-                    },
+              return Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ],
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Failed to load data',
+                          style: GoogleFonts.robotoCondensed(
+                            fontSize: 15.00,
+                            color: AppColors.onBackground,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          refreshNotifier.triggerRefresh();
+                        },
+                        child: Text(
+                          'Retry',
+                          style: GoogleFonts.robotoCondensed(
+                            fontSize: 15.00,
+                            color: AppColors.onBackground,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               );
             },
           );
@@ -99,7 +118,6 @@ Future<void> _RefreshData(BuildContext context) async {
       listen: false,
     ).fetchMangaList("All", 1, true, false);
   } catch (e) {
-    // Handle error if needed
     print('Refresh error: $e');
   }
 }
@@ -147,43 +165,45 @@ Widget _buildMangaCard(BuildContext context, Manga manga) {
       elevation: 50,
       shadowColor: AppColors.onBackground,
       color: AppColors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(7.0),
-              child: CachedNetworkImage(
-                imageUrl: manga.getImage?.isEmpty ?? true
-                    ? manga.getImgUrl
-                    : manga.getImage!,
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: AppColors.grey!,
-                  highlightColor: AppColors.grey!,
-                  child: Container(color: AppColors.white),
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(7.0),
+                child: CachedNetworkImage(
+                  imageUrl: manga.getImage?.isEmpty ?? true
+                      ? manga.getImgUrl
+                      : manga.getImage!,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: AppColors.grey!,
+                    highlightColor: AppColors.grey!,
+                    child: Container(color: AppColors.white),
+                  ),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
                 ),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              manga.getTitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.robotoCondensed(
-                fontSize: 15.00,
-                color: AppColors.onBackground,
-                fontWeight: FontWeight.w500,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                manga.getTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.robotoCondensed(
+                  fontSize: 15.00,
+                  color: AppColors.onBackground,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );

@@ -1,21 +1,21 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:manga/colors/app_color.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:manga/models/Item.dart';
 import 'package:manga/screens/imagelist.dart';
 import 'package:manga/models/detail_bean.dart';
-
 import 'package:manga/providers/detaildatanotifier.dart';
+import 'package:manga/utils/hivecontroller.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MangaDetailPage extends StatefulWidget {
-  String? id;
-  String? description;
+  final String? id;
+  final String? description;
   MangaDetailPage({super.key, required this.id, required this.description});
 
   @override
@@ -29,15 +29,30 @@ class MangaDetailPageState extends State<MangaDetailPage>
   String? title;
   String? status;
   String? mangaDesc;
+  String? bookmarkId;
+  bool isBookmarked = false;
   List<Chapters> chapterList = [];
   List<String> genres = [];
   bool isVisible = false;
   String? genre;
   var logger = Logger();
+  late HiveController _hiveController;
+
   @override
   void initState() {
     tabController = TabController(vsync: this, length: 2);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _hiveController = HiveController(
+      context: context,
+      fetchDataFunction: _loadBookmarks,
+    );
+
+    _loadBookmarks();
   }
 
   @override
@@ -71,8 +86,8 @@ class MangaDetailPageState extends State<MangaDetailPage>
           final bNum = int.tryParse(b.getChapterId.split('-').first) ?? 0;
           return aNum.compareTo(bNum);
         });
-        genre = genres.join(', ');
 
+        genre = genres.join(', ');
         mangaDesc = widget.description;
 
         return Scaffold(
@@ -88,8 +103,30 @@ class MangaDetailPageState extends State<MangaDetailPage>
                       floating: false,
                       pinned: false,
                       surfaceTintColor: Colors.transparent,
-                      leading: Align(
-                        alignment: Alignment.topLeft,
+                      actions: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(right: 5.0),
+                          child: IconButton(
+                            alignment: Alignment.center,
+                            icon: SvgPicture.asset(
+                              isBookmarked
+                                  ? 'images/bookmarked.svg'
+                                  : 'images/unmarked.svg',
+                              width: 35,
+                              height: 35,
+                            ),
+                            onPressed: () async {
+                              if (isBookmarked) {
+                                await _deleteBookmark();
+                              } else {
+                                await _createBookmark();
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                      leading: Container(
+                        margin: EdgeInsets.only(left: 5.0),
                         child: IconButton(
                           icon: Image.asset(
                             'images/back_white_home.png',
@@ -99,18 +136,13 @@ class MangaDetailPageState extends State<MangaDetailPage>
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          style: IconButton.styleFrom(
-                            backgroundColor: AppColors.transparent,
-                            shape: CircleBorder(),
-                          ),
                         ),
                       ),
-
                       flexibleSpace: FlexibleSpaceBar(
                         background: SizedBox(
                           width: MediaQuery.of(context).size.width,
                           child: CachedNetworkImage(
-                            imageUrl: image!,
+                            imageUrl: image ?? '',
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Shimmer.fromColors(
                               baseColor: AppColors.grey!,
@@ -139,7 +171,6 @@ class MangaDetailPageState extends State<MangaDetailPage>
                     ],
                   ),
                 ),
-
                 Expanded(
                   child: TabBarView(
                     controller: tabController,
@@ -167,7 +198,6 @@ class MangaDetailPageState extends State<MangaDetailPage>
                               ),
                             ),
                           ),
-
                           Container(
                             margin: const EdgeInsets.only(top: 10.0),
                             child: Text(
@@ -193,7 +223,6 @@ class MangaDetailPageState extends State<MangaDetailPage>
                       ListView.builder(
                         itemCount: chapterList.length,
                         itemBuilder: (context, index) {
-                          // variables
                           final String chapterId =
                               chapterList[index].getChapterId;
                           final String views = chapterList[index].getViews;
@@ -270,10 +299,9 @@ class MangaDetailPageState extends State<MangaDetailPage>
                                   ),
                                 ),
                                 Divider(
-                                  // Horizontal line
                                   color: AppColors.white,
                                   thickness: 1,
-                                  height: 2, // Total height including padding
+                                  height: 2,
                                 ),
                               ],
                             ),
@@ -289,5 +317,55 @@ class MangaDetailPageState extends State<MangaDetailPage>
         );
       },
     );
+  }
+
+  bool _isMangaBookmarked(String mangaId) {
+    final items = _hiveController.fetchData();
+    return items.any((item) => item['id'] == mangaId);
+  }
+
+  int? _getBookmarkKey(String mangaId) {
+    final items = _hiveController.fetchData();
+    for (var item in items) {
+      if (item['id'] == mangaId) {
+        return item['key'];
+      }
+    }
+    return null;
+  }
+
+  Future<void> _loadBookmarks() async {
+    setState(() {
+      isBookmarked = _isMangaBookmarked(widget.id ?? '');
+    });
+  }
+
+  Future<void> _createBookmark() async {
+    if (widget.id == null || title == null || image == null) return;
+
+    final item = Item(
+      title: title!,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+      description: mangaDesc ?? '',
+      id: widget.id!,
+      imageUrl: image!,
+    );
+
+    await _hiveController.createItem(item: item);
+
+    setState(() {
+      isBookmarked = true;
+    });
+  }
+
+  Future<void> _deleteBookmark() async {
+    final key = _getBookmarkKey(widget.id ?? '');
+    if (key != null) {
+      await _hiveController.deleteItem(key: key);
+
+      setState(() {
+        isBookmarked = false;
+      });
+    }
   }
 }

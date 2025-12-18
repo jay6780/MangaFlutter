@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manga/colors/app_color.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
+import 'package:manga/screens/bookmarkpage.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
@@ -97,6 +98,10 @@ class NavBarState extends State<NavBar> {
           GestureDetector(
             onTap: () {
               print("book mark");
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Bookmarkpage()),
+              );
             },
             child: Container(
               width: double.infinity,
@@ -112,31 +117,6 @@ class NavBarState extends State<NavBar> {
                     margin: EdgeInsets.only(left: 15.0),
                     child: Text(
                       'Bookmark',
-                      style: GoogleFonts.robotoCondensed(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              print("font");
-            },
-            child: Container(
-              width: double.infinity,
-              margin: EdgeInsets.only(top: 30.0, left: 15.0),
-              child: Row(
-                children: [
-                  Image.asset('images/font_img.png', width: 30, height: 30),
-                  Container(
-                    margin: EdgeInsets.only(left: 15.0),
-                    child: Text(
-                      'Font size',
                       style: GoogleFonts.robotoCondensed(
                         fontSize: 15.0,
                         fontWeight: FontWeight.bold,

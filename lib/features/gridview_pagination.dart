@@ -57,9 +57,9 @@ class _GridViewPaginationState extends State<GridViewPagination> {
                 mainAxisSpacing: 3,
                 crossAxisSpacing: 3,
                 pattern: [
-                  WovenGridTile(1),
+                  WovenGridTile(0.7),
                   WovenGridTile(
-                    7 / 8,
+                    7 / 9,
                     crossAxisRatio: 1.0,
                     alignment: AlignmentDirectional.centerEnd,
                   ),

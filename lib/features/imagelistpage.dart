@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:manga/colors/app_color.dart';
 import 'package:manga/providers/imageurldatanotifer.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ImagelistPage extends StatefulWidget {
   ImagelistPage({super.key});
@@ -34,7 +35,17 @@ class ImagelistPageState extends State<ImagelistPage> {
   @override
   void dispose() {
     _controller.dispose();
+    deleteCache();
     super.dispose();
+  }
+
+  static Future<void> deleteCache() async {
+    try {
+      final cacheDir = await getTemporaryDirectory();
+      await deleteDir(cacheDir);
+    } catch (e) {
+      // Handle exception
+    }
   }
 
   @override
@@ -64,30 +75,60 @@ class ImagelistPageState extends State<ImagelistPage> {
             boundaryMargin: EdgeInsets.all(0),
             minScale: 1.0,
             maxScale: 20.0,
-            child: SingleChildScrollView(
+            child: CustomScrollView(
               controller: _controller,
-              child: Column(
-                children: List.generate(
-                  value.imageUrls.length,
-                  (index) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 0.0),
-                    child: CachedNetworkImage(
-                      imageUrl: value.imageUrls[index],
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: AppColors.grey!,
-                        highlightColor: AppColors.grey!,
-                        child: Container(color: AppColors.white),
+              slivers: [
+                SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 0.0),
+                      child: CachedNetworkImage(
+                        imageUrl: value.imageUrls[index],
+                        placeholder: (context, url) => SizedBox(
+                          height: 500,
+                          child: Shimmer.fromColors(
+                            baseColor: AppColors.grey!,
+                            highlightColor: AppColors.grey!,
+                            child: Container(color: AppColors.white),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                        fit: BoxFit.contain,
+                        width: MediaQuery.of(context).size.width,
                       ),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
+                    );
+                  }, childCount: value.imageUrls.length),
                 ),
-              ),
+              ],
             ),
           );
         },
       ),
     );
+  }
+
+  static Future<bool> deleteDir(FileSystemEntity dir) async {
+    if (dir == null) return false;
+    try {
+      if (await dir.exists()) {
+        if (dir is Directory) {
+          final List<FileSystemEntity> children = dir.listSync();
+
+          for (final FileSystemEntity child in children) {
+            await deleteDir(child);
+          }
+
+          await dir.delete();
+          return true;
+        } else if (dir is File) {
+          await dir.delete();
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      print('Error deleting directory: $e');
+      return false;
+    }
   }
 }

@@ -24,9 +24,6 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   @override
   void dispose() {
-    Provider.of<RefreshNotifier>(context, listen: false).dispose();
-    Provider.of<Genrenamenotifier>(context, listen: false).dispose();
-    Provider.of<Mangalistnotifier>(context, listen: false).dispose();
     super.dispose();
   }
 

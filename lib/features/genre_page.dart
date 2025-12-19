@@ -32,8 +32,6 @@ class _GenrePageState extends State<GenrePage> {
 
   @override
   void dispose() {
-    Provider.of<RefreshNotifier>(context, listen: false).dispose();
-    Provider.of<Genrenamenotifier>(context, listen: false).dispose();
     _scrollController.dispose();
     queryController.dispose();
     super.dispose();

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class RefreshNotifier extends ChangeNotifier {
+class Ascnotifier extends ChangeNotifier {
   bool _shouldRefresh = false;
 
   bool get shouldRefresh => _shouldRefresh;
 
-  void triggerRefresh() {
+  void isAsc() {
     _shouldRefresh = true;
     notifyListeners();
   }
 
-  void resetRefresh() {
+  void isDesc() {
     _shouldRefresh = false;
     notifyListeners();
   }

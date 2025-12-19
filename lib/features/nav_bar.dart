@@ -13,9 +13,9 @@ class NavBar extends StatefulWidget {
 class NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Drawer(
       backgroundColor: AppColors.background,
-      body: Column(
+      child: Column(
         children: [
           Stack(
             children: [
@@ -44,14 +44,14 @@ class NavBarState extends State<NavBar> {
                           Text(
                             'User interface: Ar-jay Urbina',
                             style: GoogleFonts.robotoCondensed(
-                              fontSize: 16.0,
+                              fontSize: 13.0,
                               color: Colors.white,
                             ),
                           ),
                           Text(
                             'Api owner: Patrick Cosmos',
                             style: GoogleFonts.robotoCondensed(
-                              fontSize: 16.0,
+                              fontSize: 13.0,
                               color: Colors.white,
                             ),
                           ),
@@ -69,32 +69,32 @@ class NavBarState extends State<NavBar> {
             margin: EdgeInsets.only(top: 10.0),
             color: AppColors.white,
           ),
-          GestureDetector(
-            onTap: () {
-              print("dark mode");
-            },
-            child: Container(
-              width: double.infinity,
-              margin: EdgeInsets.only(top: 30.0, left: 15.0),
-              child: Row(
-                children: [
-                  Image.asset('images/moonlight.png', width: 30, height: 30),
-                  Container(
-                    margin: EdgeInsets.only(left: 15.0),
-                    child: Text(
-                      'Dark mode',
-                      style: GoogleFonts.robotoCondensed(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
 
+          // GestureDetector(
+          //   onTap: () {
+          //     print("dark mode");
+          //   },
+          //   child: Container(
+          //     width: double.infinity,
+          //     margin: EdgeInsets.only(top: 30.0, left: 15.0),
+          //     child: Row(
+          //       children: [
+          //         Image.asset('images/moonlight.png', width: 30, height: 30),
+          //         Container(
+          //           margin: EdgeInsets.only(left: 15.0),
+          //           child: Text(
+          //             'Dark mode',
+          //             style: GoogleFonts.robotoCondensed(
+          //               fontSize: 15.0,
+          //               fontWeight: FontWeight.bold,
+          //               color: Colors.white,
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           GestureDetector(
             onTap: () {
               print("book mark");

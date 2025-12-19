@@ -21,10 +21,9 @@ class Genrenamenotifier extends ChangeNotifier {
       final response = await remoteDataSource.getGenres();
 
       _genreList.clear();
-
       _genreList.addAll(response.genre);
 
-      _moveAllToFirst();
+      _sortWithAllFirst();
 
       _uiState = UiState.success;
       notifyListeners();
@@ -35,14 +34,17 @@ class Genrenamenotifier extends ChangeNotifier {
     }
   }
 
-  void _moveAllToFirst() {
+  void _sortWithAllFirst() {
     const allKeyword = 'All';
 
-    final allIndex = _genreList.indexWhere((genre) => genre == allKeyword);
+    // Remove "All" temporarily, sort the rest, then add "All" back at the beginning
+    final hasAll = _genreList.remove(allKeyword);
 
-    if (allIndex != -1 && allIndex != 0) {
-      final allItem = _genreList.removeAt(allIndex);
-      _genreList.insert(0, allItem);
+    // Sort alphabetically (case-insensitive)
+    _genreList.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
+    if (hasAll) {
+      _genreList.insert(0, allKeyword);
     }
   }
 }

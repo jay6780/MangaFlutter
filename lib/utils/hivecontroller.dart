@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manga/models/Item.dart';
 import 'package:manga/constants/stringconstants.dart';
+import 'package:manga/screens/bookmarkpage.dart';
 
 import 'package:manga/utils/toast.dart';
 
@@ -81,6 +82,9 @@ class HiveController {
   void afterAction(String keyword) {
     toastInfo(msg: '$keyword successfully', status: Status.success);
     fetchDataFunction();
-    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (context) => const Bookmarkpage()),
+    );
   }
 }

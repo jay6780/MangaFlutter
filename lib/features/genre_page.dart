@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manga/providers/Genrequerynotifier.dart';
 import 'package:manga/features/manga_page.dart';
-import 'package:manga/utils/toast.dart';
 import '../colors/app_color.dart';
 import '../providers/genrenamenotifier.dart';
 import '../providers/mangalistnotifier.dart';
@@ -32,6 +32,7 @@ class _GenrePageState extends State<GenrePage> {
 
   @override
   void dispose() {
+    Provider.of<RefreshNotifier>(context, listen: false);
     _scrollController.dispose();
     queryController.dispose();
     super.dispose();
@@ -55,14 +56,15 @@ class _GenrePageState extends State<GenrePage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     final refreshNotifier = context.watch<RefreshNotifier>();
+
     if (refreshNotifier.shouldRefresh) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        refreshNotifier.resetRefresh();
+        Provider.of<RefreshNotifier>(context, listen: false).resetRefresh();
         _handleRefresh();
       });
     }
-
     return Container(
       color: AppColors.background,
       child: Consumer<Genrenamenotifier>(
@@ -98,7 +100,10 @@ class _GenrePageState extends State<GenrePage> {
                     ),
                     TextButton(
                       onPressed: () {
-                        refreshNotifier.triggerRefresh();
+                        Provider.of<RefreshNotifier>(
+                          context,
+                          listen: false,
+                        ).triggerRefresh();
                       },
                       child: Text(
                         'Retry',

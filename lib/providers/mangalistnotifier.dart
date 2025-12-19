@@ -27,7 +27,6 @@ class Mangalistnotifier extends ChangeNotifier {
 
   String? _searchQuery;
   String? get searchQuery => _searchQuery;
-
   Future<void> fetchMangaList(
     String genreOrQuery,
     int page,
@@ -39,11 +38,13 @@ class Mangalistnotifier extends ChangeNotifier {
         manga.clear();
         _hasMore = true;
         _currentPage = 1;
+
         if (isSearch) {
           _searchQuery = genreOrQuery;
         } else {
           _searchQuery = null;
         }
+        notifyListeners();
       }
 
       if (!_hasMore) return;
@@ -57,14 +58,17 @@ class Mangalistnotifier extends ChangeNotifier {
         response = await remoteDataSource.getSearchList(genreOrQuery);
         _hasMore = false;
       } else {
-        response = await remoteDataSource.getMangaList(genreOrQuery, page);
+        response = await remoteDataSource.getMangaList(
+          genreOrQuery,
+          _currentPage,
+        );
         _hasMore = response.getManga.isNotEmpty;
       }
 
       manga.addAll(response.getManga);
 
-      if (!isSearch) {
-        _currentPage = page;
+      if (!isSearch && response.getManga.isNotEmpty) {
+        _currentPage++;
       }
 
       _uiState = UimangaState.success;
@@ -72,7 +76,6 @@ class Mangalistnotifier extends ChangeNotifier {
     } catch (error) {
       _uiState = UimangaState.error;
       _message = error.toString();
-      // logger.e("Error fetching manga: $error");
       _hasMore = false;
       notifyListeners();
     }

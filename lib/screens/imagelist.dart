@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manga/colors/app_color.dart';
 import 'package:manga/features/imagelistpage.dart';
@@ -18,7 +19,14 @@ class Imagelist extends StatefulWidget {
 
 class ImagelistpageState extends State<Imagelist> {
   @override
+  @override
+  void dispose() {
+    Provider.of<Imageurldatanotifer>(context, listen: false);
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(

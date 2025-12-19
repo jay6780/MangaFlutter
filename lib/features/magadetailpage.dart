@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:manga/colors/app_color.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:manga/models/Item.dart';
+import 'package:manga/providers/ascnotifier.dart';
 import 'package:manga/screens/imagelist.dart';
 import 'package:manga/models/detail_bean.dart';
 import 'package:manga/providers/detaildatanotifier.dart';
@@ -12,7 +13,6 @@ import 'package:manga/utils/hivecontroller.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 class MangaDetailPage extends StatefulWidget {
   final String? id;
@@ -30,11 +30,11 @@ class MangaDetailPageState extends State<MangaDetailPage>
   String? title;
   String? status;
   String? mangaDesc;
-  String? bookmarkId;
   bool isBookmarked = false;
+  bool isVisible = true;
+
   List<Chapters> chapterList = [];
   List<String> genres = [];
-  bool isVisible = false;
   String? genre;
   var logger = Logger();
   late HiveController _hiveController;
@@ -42,17 +42,19 @@ class MangaDetailPageState extends State<MangaDetailPage>
   @override
   void initState() {
     tabController = TabController(vsync: this, length: 2);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<Detaildatanotifier>(
+        context,
+        listen: false,
+      ).getDetailData(widget.id.toString());
+    });
     super.initState();
   }
 
   @override
   void dispose() {
-    Provider.of<Detaildatanotifier>(
-      context,
-      listen: false,
-    ).getDetailData(widget.id.toString());
-
     tabController.dispose();
+    Provider.of<Detaildatanotifier>(context, listen: false);
     super.dispose();
   }
 
@@ -67,15 +69,27 @@ class MangaDetailPageState extends State<MangaDetailPage>
     _loadBookmarks();
   }
 
+  void fetchData(DetailBean detailBean) {
+    image = detailBean.getImageUrl;
+    title = detailBean.getTitle;
+    status = detailBean.getStatus;
+    mangaDesc = widget.description;
+
+    genres.clear();
+    chapterList.clear();
+
+    genres.addAll(detailBean.getGenres);
+    chapterList.addAll(detailBean.chapters);
+
+    genre = genres.join(', ');
+  }
+
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<Detaildatanotifier>(
-        context,
-        listen: false,
-      ).getDetailData(widget.id.toString());
-    });
+    bool isAsc = false;
 
+    isAsc = context.watch<Ascnotifier>().shouldRefresh;
+    // print('isAsc: $isAsc');
     return Consumer<Detaildatanotifier>(
       builder: (context, value, child) {
         if (value.uiState == UiState.loading) {
@@ -83,24 +97,36 @@ class MangaDetailPageState extends State<MangaDetailPage>
             child: SpinKitThreeBounce(color: AppColors.white, size: 30.0),
           );
         } else if (value.uiState == UiState.error) {
-          return Center(child: Text(value.message.toString()));
+          return Center(
+            child: Text(
+              value.message.toString(),
+              style: GoogleFonts.robotoCondensed(
+                fontSize: 20.00,
+                color: AppColors.white,
+              ),
+            ),
+          );
         }
 
-        for (DetailBean detailBean in value.detailbeanList) {
-          image = detailBean.getImageUrl;
-          title = detailBean.getTitle;
-          status = detailBean.getStatus;
-          chapterList.addAll(detailBean.chapters);
-          genres.addAll(detailBean.getGenres);
+        if (value.detailbeanList.isNotEmpty) {
+          fetchData(value.detailbeanList.first);
         }
-        chapterList.sort((a, b) {
-          final aNum = int.tryParse(a.getChapterId.split('-').first) ?? 0;
-          final bNum = int.tryParse(b.getChapterId.split('-').first) ?? 0;
-          return aNum.compareTo(bNum);
-        });
 
-        genre = genres.join(', ');
-        mangaDesc = widget.description;
+        if (isAsc) {
+          chapterList.sort((a, b) {
+            final aNum = int.tryParse(a.getChapterId.split('-').first) ?? 0;
+            final bNum = int.tryParse(b.getChapterId.split('-').first) ?? 0;
+            return aNum.compareTo(bNum);
+          });
+        } else {
+          chapterList.sort((b, a) {
+            final aNum = int.tryParse(b.getChapterId.split('-').first) ?? 0;
+            final bNum = int.tryParse(a.getChapterId.split('-').first) ?? 0;
+            return bNum.compareTo(aNum);
+          });
+        }
+
+        chapterList.length < 5 ? isVisible = false : isVisible = true;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -111,45 +137,47 @@ class MangaDetailPageState extends State<MangaDetailPage>
                     SliverAppBar(
                       backgroundColor: AppColors.background,
                       automaticallyImplyLeading: false,
-                      expandedHeight: 240.0,
+                      expandedHeight: 300.0,
                       floating: false,
                       pinned: false,
                       surfaceTintColor: Colors.transparent,
                       actions: <Widget>[
-                        Container(
-                          margin: EdgeInsets.only(right: 5.0),
-                          child: IconButton(
-                            alignment: Alignment.center,
-                            icon: SvgPicture.asset(
-                              isBookmarked
-                                  ? 'images/bookmarked.svg'
-                                  : 'images/unmarked.svg',
-                              width: 35,
-                              height: 35,
-                            ),
-                            onPressed: () async {
-                              if (isBookmarked) {
-                                await _deleteBookmark();
-                              } else {
-                                await _createBookmark();
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                      leading: Container(
-                        margin: EdgeInsets.only(left: 5.0),
-                        child: IconButton(
-                          icon: Image.asset(
-                            'images/back_white_home.png',
+                        IconButton(
+                          icon: SvgPicture.asset(
+                            isBookmarked
+                                ? 'images/bookmarked.svg'
+                                : 'images/unmarked.svg',
                             width: 35,
                             height: 35,
                           ),
-                          onPressed: () {
-                            Navigator.pop(context);
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.transparent,
+                            shape: CircleBorder(),
+                          ),
+                          onPressed: () async {
+                            if (isBookmarked) {
+                              await _deleteBookmark();
+                            } else {
+                              await _createBookmark();
+                            }
                           },
                         ),
+                      ],
+                      leading: IconButton(
+                        icon: Image.asset(
+                          'images/back_white_home.png',
+                          width: 35,
+                          height: 35,
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.transparent,
+                          shape: CircleBorder(),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
+
                       flexibleSpace: FlexibleSpaceBar(
                         background: SizedBox(
                           width: MediaQuery.of(context).size.width,
@@ -205,7 +233,7 @@ class MangaDetailPageState extends State<MangaDetailPage>
                             child: Text(
                               'Status: $status',
                               style: GoogleFonts.robotoCondensed(
-                                fontSize: 15.00,
+                                fontSize: 13.00,
                                 color: AppColors.white,
                               ),
                             ),
@@ -215,7 +243,7 @@ class MangaDetailPageState extends State<MangaDetailPage>
                             child: Text(
                               'Genres: $genre',
                               style: GoogleFonts.robotoCondensed(
-                                fontSize: 15.00,
+                                fontSize: 13.00,
                                 color: AppColors.white,
                               ),
                             ),
@@ -225,100 +253,158 @@ class MangaDetailPageState extends State<MangaDetailPage>
                             child: Text(
                               'Description: $mangaDesc',
                               style: GoogleFonts.robotoCondensed(
-                                fontSize: 15.00,
+                                fontSize: 13.00,
                                 color: AppColors.white,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      ListView.builder(
-                        itemCount: chapterList.length,
-                        itemBuilder: (context, index) {
-                          final String chapterId =
-                              chapterList[index].getChapterId;
-                          final String views = chapterList[index].getViews;
-                          final String uploaded =
-                              chapterList[index].getUploaded;
-                          final String timestamp =
-                              chapterList[index].getTimestamp;
 
-                          return InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Imagelist(
-                                    id: widget.id,
-                                    chapterId: chapterId,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      Column(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(top: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                    left: 5.0,
-                                    top: 5.0,
-                                  ),
-                                  child: Text(
-                                    'Chapter: $chapterId',
-                                    style: GoogleFonts.robotoCondensed(
-                                      fontSize: 15.00,
-                                      color: AppColors.white,
+                                Visibility(
+                                  visible: isVisible,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      desc();
+                                    },
+                                    child: Container(
+                                      margin: EdgeInsets.only(right: 15.0),
+                                      child: Text(
+                                        'Descending',
+                                        style: GoogleFonts.robotoCondensed(
+                                          fontSize: 13.00,
+                                          color: isAsc
+                                              ? AppColors.white
+                                              : AppColors.select_color,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                    left: 5.0,
-                                    top: 5.0,
-                                  ),
-                                  child: Text(
-                                    'Views: $views',
-                                    style: GoogleFonts.robotoCondensed(
-                                      fontSize: 15.00,
-                                      color: AppColors.white,
+                                Visibility(
+                                  visible: isVisible,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      asc();
+                                    },
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: 15.0),
+                                      child: Text(
+                                        'Ascending',
+                                        style: GoogleFonts.robotoCondensed(
+                                          fontSize: 13.00,
+                                          color: !isAsc
+                                              ? AppColors.white
+                                              : AppColors.select_color,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                    left: 5.0,
-                                    top: 5.0,
-                                  ),
-                                  child: Text(
-                                    'Uploaded: $uploaded',
-                                    style: GoogleFonts.robotoCondensed(
-                                      fontSize: 15.00,
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                    left: 5.0,
-                                    top: 5.0,
-                                  ),
-                                  child: Text(
-                                    'Timestamp: $timestamp',
-                                    style: GoogleFonts.robotoCondensed(
-                                      fontSize: 15.00,
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                ),
-                                Divider(
-                                  color: AppColors.white,
-                                  thickness: 1,
-                                  height: 2,
                                 ),
                               ],
                             ),
-                          );
-                        },
+                          ),
+
+                          Flexible(
+                            child: ListView.builder(
+                              itemCount: chapterList.length,
+                              itemBuilder: (context, index) {
+                                final String chapterId =
+                                    chapterList[index].getChapterId;
+                                final String views =
+                                    chapterList[index].getViews;
+                                final String uploaded =
+                                    chapterList[index].getUploaded;
+                                final String timestamp =
+                                    chapterList[index].getTimestamp;
+
+                                return InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Imagelist(
+                                          id: widget.id,
+                                          chapterId: chapterId,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                          left: 5.0,
+                                          top: 5.0,
+                                        ),
+                                        child: Text(
+                                          'Chapter: $chapterId',
+                                          style: GoogleFonts.robotoCondensed(
+                                            fontSize: 15.00,
+                                            color: AppColors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                          left: 5.0,
+                                          top: 5.0,
+                                        ),
+                                        child: Text(
+                                          'Views: $views',
+                                          style: GoogleFonts.robotoCondensed(
+                                            fontSize: 15.00,
+                                            color: AppColors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                          left: 5.0,
+                                          top: 5.0,
+                                        ),
+                                        child: Text(
+                                          'Uploaded: $uploaded',
+                                          style: GoogleFonts.robotoCondensed(
+                                            fontSize: 15.00,
+                                            color: AppColors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                          left: 5.0,
+                                          top: 5.0,
+                                        ),
+                                        child: Text(
+                                          'Timestamp: $timestamp',
+                                          style: GoogleFonts.robotoCondensed(
+                                            fontSize: 15.00,
+                                            color: AppColors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      Divider(
+                                        color: AppColors.white,
+                                        thickness: 1,
+                                        height: 2,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -348,18 +434,24 @@ class MangaDetailPageState extends State<MangaDetailPage>
 
   Future<void> _loadBookmarks() async {
     try {
-      // print('Loading bookmarks for manga: ${widget.id}');
       final items = _hiveController.fetchData();
-      // print('Total bookmarks in Hive: ${items.length}');
-      // print('Bookmarks: $items');
 
-      setState(() {
-        isBookmarked = _isMangaBookmarked(widget.id ?? '');
-        // print('Is bookmarked: $isBookmarked');
-      });
+      if (mounted) {
+        setState(() {
+          isBookmarked = _isMangaBookmarked(widget.id ?? '');
+        });
+      }
     } catch (e) {
       print('Error loading bookmarks: $e');
     }
+  }
+
+  Future<void> asc() async {
+    Provider.of<Ascnotifier>(context, listen: false).isAsc();
+  }
+
+  Future<void> desc() async {
+    Provider.of<Ascnotifier>(context, listen: false).isDesc();
   }
 
   Future<void> _createBookmark() async {
@@ -374,9 +466,11 @@ class MangaDetailPageState extends State<MangaDetailPage>
 
     await _hiveController.createItem(item: item);
 
-    setState(() {
-      isBookmarked = true;
-    });
+    if (mounted) {
+      setState(() {
+        isBookmarked = true;
+      });
+    }
   }
 
   Future<void> _deleteBookmark() async {
@@ -384,9 +478,11 @@ class MangaDetailPageState extends State<MangaDetailPage>
     if (key != null) {
       await _hiveController.deleteItem(key: key);
 
-      setState(() {
-        isBookmarked = false;
-      });
+      if (mounted) {
+        setState(() {
+          isBookmarked = false;
+        });
+      }
     }
   }
 }

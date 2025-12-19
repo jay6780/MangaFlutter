@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:logger/web.dart';
 import 'package:manga/colors/app_color.dart';
 import 'package:manga/features/magadetailpage.dart';
+import 'package:manga/providers/ascnotifier.dart';
 import 'package:manga/providers/detaildatanotifier.dart';
 import 'package:manga/service/api_service.dart';
 import 'package:manga/service/remote_data_source.dart';
@@ -21,6 +22,7 @@ class MangaDetailState extends State<MangaDetail> {
   var logger = Logger();
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(statusBarColor: Colors.transparent),
     );
@@ -32,6 +34,7 @@ class MangaDetailState extends State<MangaDetail> {
             remoteDataSource: RemoteDataSource(dio: ApiService().provideDio()),
           ),
         ),
+        ChangeNotifierProvider(create: (context) => Ascnotifier()),
       ],
 
       child: Scaffold(

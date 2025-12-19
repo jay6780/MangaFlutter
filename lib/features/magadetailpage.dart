@@ -54,7 +54,7 @@ class MangaDetailPageState extends State<MangaDetailPage>
   @override
   void dispose() {
     tabController.dispose();
-    Provider.of<Detaildatanotifier>(context, listen: false);
+    Provider.of<Detaildatanotifier>(context, listen: false).dispose();
     super.dispose();
   }
 

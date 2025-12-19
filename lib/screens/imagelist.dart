@@ -21,7 +21,7 @@ class ImagelistpageState extends State<Imagelist> {
   @override
   @override
   void dispose() {
-    Provider.of<Imageurldatanotifer>(context, listen: false);
+    Provider.of<Imageurldatanotifer>(context, listen: false).dispose();
     super.dispose();
   }
 

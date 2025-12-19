@@ -14,8 +14,21 @@ import '../providers/refresh_notifier.dart';
 import 'package:manga/features/genre_page.dart';
 import 'package:manga/features/nav_bar.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
+
+  @override
+  HomeState createState() => HomeState();
+}
+
+class HomeState extends State<Home> {
+  @override
+  void dispose() {
+    Provider.of<RefreshNotifier>(context, listen: false).dispose();
+    Provider.of<Genrenamenotifier>(context, listen: false).dispose();
+    Provider.of<Mangalistnotifier>(context, listen: false).dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +107,9 @@ class Home extends StatelessWidget {
                           ),
                           onPressed: () {
                             refreshNotifier.triggerRefresh();
+                            context.read<Genrequerynotifier>().selectGenre(
+                              "All",
+                            );
                           },
                         );
                       },

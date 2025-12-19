@@ -30,7 +30,8 @@ class MangaPageState extends State<MangaPage> {
 
   @override
   void dispose() {
-    Provider.of<Mangalistnotifier>(context, listen: false);
+    Provider.of<Mangalistnotifier>(context, listen: false).dispose();
+    Provider.of<RefreshNotifier>(context, listen: false).dispose();
     super.dispose();
   }
 

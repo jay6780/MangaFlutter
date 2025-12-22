@@ -1,5 +1,4 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manga/colors/app_color.dart';
 import 'package:manga/providers/Genrequerynotifier.dart';
@@ -58,7 +57,7 @@ class MangaPageState extends State<MangaPage> {
             child: SpinKitThreeBounce(color: AppColors.white, size: 30.0),
           );
         } else if (notifier.uiState == UimangaState.error) {
-          toastInfo(msg: 'No more', status: Status.error);
+          toastInfo(msg: "No more data", status: Status.error);
           _grid_layout(notifier, context, genrename, false);
         }
         return _grid_layout(notifier, context, genrename, true);
@@ -157,13 +156,13 @@ Widget _buildMangaCard(BuildContext context, Manga manga) {
                     ? manga.getImgUrl
                     : manga.getImage!,
                 placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: AppColors.grey!,
-                  highlightColor: AppColors.grey!,
+                  baseColor: AppColors.grey,
+                  highlightColor: AppColors.grey,
                   child: Container(color: AppColors.white),
                 ),
                 errorWidget: (context, url, error) => Icon(Icons.error),
-                width: double.infinity,
-                height: double.infinity,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
                 fit: BoxFit.cover,
               ),
             ),

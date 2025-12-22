@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manga/providers/Genrequerynotifier.dart';
 import 'package:manga/features/manga_page.dart';
+import 'package:manga/utils/toast.dart';
 import '../colors/app_color.dart';
 import '../providers/genrenamenotifier.dart';
 import '../providers/mangalistnotifier.dart';
@@ -37,22 +38,6 @@ class _GenrePageState extends State<GenrePage> {
     super.dispose();
   }
 
-  void _handleRefresh() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-    setState(() {
-      _selectedIndex = 0;
-      genrename = "All";
-      queryController.clear();
-    });
-    context.read<Genrequerynotifier>().selectGenre(genrename);
-  }
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -72,49 +57,6 @@ class _GenrePageState extends State<GenrePage> {
             return const Center(
               child: DecoratedBox(
                 decoration: BoxDecoration(color: AppColors.background),
-              ),
-            );
-          } else if (value.uiState == UiState.error) {
-            logger.e('error: ', error: value.message.toString());
-            return Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Failed to load data',
-                        style: GoogleFonts.robotoCondensed(
-                          fontSize: 15.00,
-                          color: AppColors.onBackground,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Provider.of<RefreshNotifier>(
-                          context,
-                          listen: false,
-                        ).triggerRefresh();
-                      },
-                      child: Text(
-                        'Retry',
-                        style: GoogleFonts.robotoCondensed(
-                          fontSize: 15.00,
-                          color: AppColors.onBackground,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             );
           }
@@ -310,5 +252,21 @@ class _GenrePageState extends State<GenrePage> {
         },
       ),
     );
+  }
+
+  void _handleRefresh() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+    setState(() {
+      _selectedIndex = 0;
+      genrename = "All";
+      queryController.clear();
+    });
+    context.read<Genrequerynotifier>().selectGenre(genrename);
   }
 }

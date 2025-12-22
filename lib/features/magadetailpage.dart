@@ -10,6 +10,7 @@ import 'package:manga/screens/imagelist.dart';
 import 'package:manga/models/detail_bean.dart';
 import 'package:manga/providers/detaildatanotifier.dart';
 import 'package:manga/utils/hivecontroller.dart';
+import 'package:manga/utils/toast.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -92,19 +93,10 @@ class MangaDetailPageState extends State<MangaDetailPage>
     return Consumer<Detaildatanotifier>(
       builder: (context, value, child) {
         if (value.uiState == UiState.loading) {
-          return const Center(
-            child: SpinKitThreeBounce(color: AppColors.white, size: 30.0),
-          );
+          return Detail_ui(isAsc, value, chapterList, genres, isVisible);
         } else if (value.uiState == UiState.error) {
-          return Center(
-            child: Text(
-              value.message.toString(),
-              style: GoogleFonts.robotoCondensed(
-                fontSize: 20.00,
-                color: AppColors.white,
-              ),
-            ),
-          );
+          final String errorMsg = value.message.toString();
+          toastInfo(msg: errorMsg, status: Status.error);
         }
 
         if (value.detailbeanList.isNotEmpty) {
@@ -126,91 +118,136 @@ class MangaDetailPageState extends State<MangaDetailPage>
         }
 
         chapterList.length < 5 ? isVisible = false : isVisible = true;
+        return Detail_ui(isAsc, value, chapterList, genres, isVisible);
+      },
+    );
+  }
 
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: NestedScrollView(
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
-                  return <Widget>[
-                    SliverAppBar(
-                      backgroundColor: AppColors.background,
-                      automaticallyImplyLeading: false,
-                      expandedHeight: 300.0,
-                      floating: false,
-                      pinned: false,
-                      surfaceTintColor: Colors.transparent,
-                      actions: <Widget>[
-                        IconButton(
-                          icon: SvgPicture.asset(
-                            isBookmarked
-                                ? 'images/bookmarked.svg'
-                                : 'images/unmarked.svg',
-                            width: 35,
-                            height: 35,
-                          ),
-                          style: IconButton.styleFrom(
-                            backgroundColor: AppColors.transparent,
-                            shape: CircleBorder(),
-                          ),
-                          onPressed: () async {
-                            if (isBookmarked) {
-                              await _deleteBookmark();
-                            } else {
-                              await _createBookmark();
-                            }
-                          },
-                        ),
-                      ],
-                      leading: IconButton(
-                        icon: Image.asset(
-                          'images/back_white_home.png',
-                          width: 35,
-                          height: 35,
-                        ),
-                        style: IconButton.styleFrom(
-                          backgroundColor: AppColors.transparent,
-                          shape: CircleBorder(),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-
-                      flexibleSpace: FlexibleSpaceBar(
-                        background: SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: CachedNetworkImage(
-                            imageUrl: image ?? '',
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Shimmer.fromColors(
-                              baseColor: AppColors.grey!,
-                              highlightColor: AppColors.grey!,
-                              child: Container(color: AppColors.white),
-                            ),
-                          ),
-                        ),
-                      ),
+  Widget Detail_ui(
+    bool isAsc,
+    Detaildatanotifier notifier,
+    List<Chapters> chapterList,
+    List<String> genres,
+    bool isVisible,
+  ) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              backgroundColor: AppColors.background,
+              automaticallyImplyLeading: false,
+              expandedHeight: 300.0,
+              floating: false,
+              pinned: false,
+              surfaceTintColor: Colors.transparent,
+              actions: <Widget>[
+                Visibility(
+                  visible: notifier.uiState == UiState.success,
+                  child: IconButton(
+                    icon: SvgPicture.asset(
+                      isBookmarked
+                          ? 'images/bookmarked.svg'
+                          : 'images/unmarked.svg',
+                      width: 35,
+                      height: 35,
                     ),
-                  ];
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.transparent,
+                      shape: CircleBorder(),
+                    ),
+                    onPressed: () async {
+                      if (isBookmarked) {
+                        await _deleteBookmark();
+                      } else {
+                        await _createBookmark();
+                      }
+                    },
+                  ),
+                ),
+              ],
+              leading: IconButton(
+                icon: SvgPicture.asset(
+                  'images/back_white_home.svg',
+                  width: 35,
+                  height: 35,
+                ),
+                style: IconButton.styleFrom(
+                  backgroundColor: AppColors.transparent,
+                  shape: CircleBorder(),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
                 },
-            body: Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 20.0),
-                  child: TabBar(
-                    controller: tabController,
-                    labelColor: AppColors.select_color,
-                    unselectedLabelColor: Colors.white70,
-                    indicatorColor: AppColors.select_color,
-                    dividerColor: Colors.transparent,
-                    tabs: [
-                      Tab(text: "Synopsis"),
-                      Tab(text: "Chapters"),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                background: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Stack(
+                    children: [
+                      Visibility(
+                        visible: notifier.uiState == UiState.loading,
+                        child: Center(
+                          child: SpinKitThreeBounce(
+                            color: AppColors.white,
+                            size: 30.0,
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: notifier.uiState == UiState.success,
+                        child: CachedNetworkImage(
+                          width: MediaQuery.of(context).size.width,
+                          imageUrl: image ?? '',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: AppColors.grey,
+                            highlightColor: AppColors.grey,
+                            child: Container(color: AppColors.white),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Expanded(
+              ),
+            ),
+          ];
+        },
+        body: Container(
+          margin: const EdgeInsets.only(top: 20.0),
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            children: [
+              TabBar(
+                controller: tabController,
+                labelColor: AppColors.select_color,
+                unselectedLabelColor: Colors.white70,
+                indicatorColor: AppColors.select_color,
+                dividerColor: Colors.transparent,
+                tabs: [
+                  Tab(text: "Synopsis"),
+                  Tab(text: "Chapters"),
+                ],
+              ),
+
+              Visibility(
+                visible: notifier.uiState == UiState.loading,
+                child: Container(
+                  margin: EdgeInsets.only(top: 50.00),
+                  child: Center(
+                    child: SpinKitThreeBounce(
+                      color: AppColors.white,
+                      size: 30.0,
+                    ),
+                  ),
+                ),
+              ),
+
+              Visibility(
+                visible: notifier.uiState == UiState.success,
+                child: Expanded(
                   child: TabBarView(
                     controller: tabController,
                     children: [
@@ -407,11 +444,11 @@ class MangaDetailPageState extends State<MangaDetailPage>
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

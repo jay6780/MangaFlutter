@@ -82,9 +82,5 @@ class HiveController {
   void afterAction(String keyword) {
     toastInfo(msg: '$keyword successfully', status: Status.success);
     fetchDataFunction();
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(builder: (context) => const Bookmarkpage()),
-    );
   }
 }

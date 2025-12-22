@@ -54,7 +54,7 @@ class HomeState extends State<Home> {
             automaticallyImplyLeading: false,
             backgroundColor: AppColors.background,
             title: SizedBox(
-              width: double.infinity,
+              width: MediaQuery.of(context).size.width,
               height: 50.0,
               child: Stack(
                 children: [

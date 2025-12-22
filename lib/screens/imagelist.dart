@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:manga/colors/app_color.dart';
 import 'package:manga/features/imagelistpage.dart';
@@ -47,8 +48,8 @@ class ImagelistpageState extends State<Imagelist> {
                   child: Builder(
                     builder: (BuildContext context) {
                       return IconButton(
-                        icon: Image.asset(
-                          'images/back_white_home.png',
+                        icon: SvgPicture.asset(
+                          'images/back_white_home.svg',
                           width: 35,
                           height: 35,
                         ),

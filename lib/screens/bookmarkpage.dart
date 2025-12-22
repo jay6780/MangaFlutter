@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manga/colors/app_color.dart';
@@ -49,8 +50,8 @@ class BookmarkpageState extends State<Bookmarkpage> {
                 child: Builder(
                   builder: (BuildContext context) {
                     return IconButton(
-                      icon: Image.asset(
-                        'images/back_white_home.png',
+                      icon: SvgPicture.asset(
+                        'images/back_white_home.svg',
                         width: 35,
                         height: 35,
                       ),
@@ -176,8 +177,8 @@ class BookmarkpageState extends State<Bookmarkpage> {
                     ),
                     errorWidget: (context, url, error) =>
                         const Icon(Icons.error),
-                    width: double.infinity,
-                    height: double.infinity,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
                     fit: BoxFit.cover,
                   ),
                 ),

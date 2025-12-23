@@ -37,8 +37,6 @@ class Mangalistnotifier extends ChangeNotifier {
       if (isRefresh) {
         manga.clear();
         _hasMore = true;
-        _currentPage = 1;
-
         if (isSearch) {
           _searchQuery = genreOrQuery;
         } else {
@@ -58,18 +56,11 @@ class Mangalistnotifier extends ChangeNotifier {
         response = await remoteDataSource.getSearchList(genreOrQuery);
         _hasMore = false;
       } else {
-        response = await remoteDataSource.getMangaList(
-          genreOrQuery,
-          _currentPage,
-        );
+        response = await remoteDataSource.getMangaList(genreOrQuery, page);
         _hasMore = response.getManga.isNotEmpty;
       }
 
       manga.addAll(response.getManga);
-
-      if (!isSearch && response.getManga.isNotEmpty) {
-        _currentPage++;
-      }
 
       _uiState = UimangaState.success;
       notifyListeners();

@@ -259,7 +259,7 @@ class MangaDetailPageState extends State<MangaDetailPage>
                             child: Text(
                               'Title: $title',
                               style: GoogleFonts.robotoCondensed(
-                                fontSize: 15.00,
+                                fontSize: 18.00,
                                 color: AppColors.white,
                               ),
                             ),
@@ -269,7 +269,7 @@ class MangaDetailPageState extends State<MangaDetailPage>
                             child: Text(
                               'Status: $status',
                               style: GoogleFonts.robotoCondensed(
-                                fontSize: 13.00,
+                                fontSize: 15.00,
                                 color: AppColors.white,
                               ),
                             ),
@@ -279,7 +279,7 @@ class MangaDetailPageState extends State<MangaDetailPage>
                             child: Text(
                               'Genres: $genre',
                               style: GoogleFonts.robotoCondensed(
-                                fontSize: 13.00,
+                                fontSize: 15.00,
                                 color: AppColors.white,
                               ),
                             ),
@@ -289,7 +289,7 @@ class MangaDetailPageState extends State<MangaDetailPage>
                             child: Text(
                               'Description: $mangaDesc',
                               style: GoogleFonts.robotoCondensed(
-                                fontSize: 13.00,
+                                fontSize: 15.00,
                                 color: AppColors.white,
                               ),
                             ),

@@ -53,10 +53,28 @@ class HomeState extends State<Home> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             backgroundColor: AppColors.background,
+            actions: [
+              Consumer<RefreshNotifier>(
+                builder: (context, refreshNotifier, child) {
+                  return IconButton(
+                    icon: SvgPicture.asset(
+                      'images/refresh.svg',
+                      width: 35,
+                      height: 35,
+                    ),
+                    onPressed: () {
+                      refreshNotifier.triggerRefresh();
+                      context.read<Genrequerynotifier>().selectGenre("All");
+                    },
+                  );
+                },
+              ),
+            ],
             title: SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 50.0,
-              child: Stack(
+              child: Row(
+                spacing: 70,
                 children: [
                   Align(
                     alignment: Alignment.topLeft,
@@ -78,38 +96,12 @@ class HomeState extends State<Home> {
                       },
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      margin: EdgeInsets.only(top: 10.0),
-                      child: Text(
-                        appTitle,
-                        style: GoogleFonts.robotoCondensed(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Consumer<RefreshNotifier>(
-                      builder: (context, refreshNotifier, child) {
-                        return IconButton(
-                          icon: SvgPicture.asset(
-                            'images/refresh.svg',
-                            width: 35,
-                            height: 35,
-                          ),
-                          onPressed: () {
-                            refreshNotifier.triggerRefresh();
-                            context.read<Genrequerynotifier>().selectGenre(
-                              "All",
-                            );
-                          },
-                        );
-                      },
+                  Text(
+                    appTitle,
+                    style: GoogleFonts.robotoCondensed(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ],

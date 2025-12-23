@@ -21,6 +21,7 @@ class MangaPage extends StatefulWidget {
 class MangaPageState extends State<MangaPage> {
   String genrename = "";
   bool isRefresh = false;
+  int page = 1;
 
   @override
   void initState() {
@@ -46,7 +47,7 @@ class MangaPageState extends State<MangaPage> {
       Provider.of<Mangalistnotifier>(
         context,
         listen: false,
-      ).fetchMangaList(genrename, 1, true, false);
+      ).fetchMangaList(genrename, page, true, false);
     });
 
     return Consumer<Mangalistnotifier>(
@@ -58,37 +59,20 @@ class MangaPageState extends State<MangaPage> {
           );
         } else if (notifier.uiState == UimangaState.error) {
           toastInfo(msg: "No more data", status: Status.error);
-          _grid_layout(notifier, context, genrename, false);
+          _grid_layout(notifier, context, genrename);
         }
-        return _grid_layout(notifier, context, genrename, true);
+        return _grid_layout(notifier, context, genrename);
       },
     );
   }
 }
 
-Future<void> _RefreshData(BuildContext context) async {
-  try {
-    await Provider.of<Mangalistnotifier>(
-      context,
-      listen: false,
-    ).fetchMangaList("All", 1, true, false);
-  } catch (e) {
-    print('Refresh error: $e');
-  }
-}
-
-Future<bool> _loadPage(
-  BuildContext context,
-  int page,
-  String genrename,
-  bool isPaginate,
-) async {
+Future<bool> _loadPage(BuildContext context, int page, String genrename) async {
   try {
     final notifier = context.read<Mangalistnotifier>();
     if (notifier.searchQuery != null) {
       return false;
     }
-    if (isPaginate) {}
     await notifier.fetchMangaList(
       genrename.toLowerCase().isEmpty ? "All" : genrename.toLowerCase(),
       page,
@@ -107,7 +91,6 @@ Widget _grid_layout(
   Mangalistnotifier notifier,
   BuildContext context,
   String genrename,
-  bool isPaginate,
 ) {
   return GridViewPagination(
     itemCount: notifier.manga.length,
@@ -115,7 +98,7 @@ Widget _grid_layout(
     itemBuilder: (context, index) =>
         _buildMangaCard(context, notifier.manga[index]),
     onNextPage: (int nextPage) {
-      return _loadPage(context, nextPage, genrename, isPaginate);
+      return _loadPage(context, nextPage, genrename);
     },
     progressBuilder: (context) => Center(
       child: CircularProgressIndicator(

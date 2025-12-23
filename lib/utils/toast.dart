@@ -8,7 +8,7 @@ void toastInfo({required String msg, required Status status}) {
     msg: msg,
     backgroundColor: status == Status.error
         ? AppColors.error
-        : AppColors.background,
+        : AppColors.onBackground,
     toastLength: Toast.LENGTH_LONG,
     gravity: ToastGravity.BOTTOM,
   );

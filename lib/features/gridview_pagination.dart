@@ -26,7 +26,7 @@ class GridViewPagination extends StatefulWidget {
 }
 
 class _GridViewPaginationState extends State<GridViewPagination> {
-  int currentPage = 1;
+  int currentPage = 2;
   bool isLoading = false;
 
   @override
